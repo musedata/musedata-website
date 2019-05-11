@@ -1,0 +1,142 @@
+
+{% include_relative listeners.html %}
+{% include_relative scripts-audio.html %}
+
+<script>
+// vim: ts=3
+
+function displayList(list, query, peeps) {
+	reportMatches(list);
+	var output = "";
+
+	output += "<table id='red-welte-list'>";
+
+	output += "<thead>";
+	output += "<tr>";
+	output += "<th></th>";
+	output += "<th title='Sort by manufacturer catalog number' onclick='SortByNumber(1, \"#red-welte-list\")'>Label</th>";
+	output += "<th title='Sort by title' onclick='SortByText(2, \"#red-welte-list\")'>Title</th>";
+	output += "<th title='Sort by composer' onclick='SortByText(3, \"#red-welte-list\")'>Composer</th>";
+	output += "<th title='Sort by performer' onclick='SortByText(4, \"#red-welte-list\")'>Performer</th>";
+	output += "<th title='Sort by DRUID' onclick='SortByDruid(6, \"#red-welte-list\")'colspan='7'>Data and Metadata Links</th>";  // PURL/Searchworks links, etc
+	output += "</tr>";
+	output += "</thead>";
+
+	output += "<tbody>";
+
+	output += MakeRollTableRows(list, peeps);
+
+	output += "</tbody>";
+	output += "</table>";
+
+	var element = document.querySelector("div#list");
+	if (query) {
+		element.style.display = "none";
+		var inp = document.querySelector("input#search");
+		if (inp) {
+			inp.value = query;
+			doSearch(query);
+		}
+	} else if (list.length == 0) {
+		element.innerHTML = "";
+	} else {
+		element.innerHTML = output;
+	}
+	SortByNumber(SORTCOLUMN, "#red-welte-list");
+
+	if (query) {
+		element.style.display = "block";
+	}
+}
+
+
+
+//////////////////////////////
+//
+// doSearch --
+//
+
+function doSearch(text) {
+	if (!text) {
+		var element = document.querySelector("input#search");
+		text = element.value;
+	}
+
+	text = text.trim();
+	text = escape(text);
+	text = text.replace(/%u0([A-F0-9][A-F0-9][A-F0-9])/g, "&#x$1;");
+	text = text.replace(/%u([A-F0-9][A-F0-9][A-F0-9][A-F0-9])/g, "&#x$1;");
+	text = text.replace(/%([A-F0-9][A-F0-9])/g, "&#x$1;");
+	text = text.replace(/\&#x([0-7][0-9A-F]);/g, "%$1");
+	text = unescape(text);
+	var fields = text.split(/\s+/);
+	var entries = ROLLINFO;
+	var oldentries;
+	for (var i=0; i<fields.length; i++) { 
+		if (fields[i].match(/^\s*$/)) {
+			continue;
+		}
+		oldentries = entries;
+		entries = [];
+		var regexp = new RegExp(fields[i], "i");
+		for (var j=0; j<oldentries.length; j++) {
+			if (CGI.f) {
+				if (oldentries[j][CGI.f] && oldentries[j][CGI.f].match(regexp)) {
+					entries.push(oldentries[j]);
+					continue;
+				}
+			} else {
+				if (oldentries[j].TITLE && oldentries[j].TITLE.match(regexp)) {
+					entries.push(oldentries[j]);
+					continue;
+				}
+				if (oldentries[j].COMPOSER && oldentries[j].COMPOSER.match(regexp)) {
+					entries.push(oldentries[j]);
+					continue;
+				}
+				if (oldentries[j].PERFORMER && oldentries[j].PERFORMER.match(regexp)) {
+					entries.push(oldentries[j]);
+					continue;
+				}
+				if (oldentries[j].LABEL && oldentries[j].LABEL.match(regexp)) {
+					entries.push(oldentries[j]);
+					continue;
+				}
+			}
+		}
+		
+	}
+
+	displayList(entries, null, PEEPS);
+}
+
+
+
+//////////////////////////////
+//
+// reportMatches --
+//
+
+function reportMatches(list) {
+	var element = document.querySelector("#search-count");
+	if (!element) {
+		return;
+	}
+	if (list.length == ROLLINFO.length) {
+		element.innerHTML = "";
+		return;
+	}
+	var output = "" + list.length;
+	output += " roll";
+	if (list.length != 1) {
+		output += "s";
+	}
+	element.innerHTML = output;
+}
+
+
+</script>
+
+
+
+

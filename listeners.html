@@ -1,0 +1,347 @@
+
+{% include scripts/scripts-common.html %}
+
+<script>
+// vim: ts=3
+
+var CGI = {};      // CGI parameters from URL
+var MENUDATA = [];
+
+
+//////////////////////////////
+//
+// DOMContentLoaded event listener --
+//
+
+document.addEventListener("DOMContentLoaded", function () {
+	var id = "1U4Z-NeU2FGk_qNq6BwXeSVN-p8AnZsWbRHGo5fk3f3A"
+	var gid = "0";
+	var url = "https://docs.google.com/spreadsheets/d/";
+	url += id;
+	url += "/export?gid=";
+	url += gid;
+	url += "&format=tsv";
+
+	CGI = GetCgiParameters();
+
+	var request = new XMLHttpRequest();
+	request.addEventListener("load", function () {
+		MENUDATA = prepareMenuIndex(this.responseText)
+		doAction(MENUDATA);
+	});
+	request.open("GET", url);
+	request.send();
+});
+
+
+
+//////////////////////////////
+//
+// doAction --
+//
+
+function doAction(menudata) {
+	displayLevel(menudata);
+}
+
+
+
+//////////////////////////////
+//
+// displayLevel --
+//
+
+function displayLevel(menudata) {
+	var list = [];
+	for (var key in menudata) {
+		if (typeof menudata[key] === "string") {
+			continue;
+		}
+		if (menudata[key]["@level"]) {
+			list.push(menudata[key]);
+		}
+	}
+	list = list.sort(function(a, b) {
+		return a["@line"] - b["@line"];
+	});
+	if (list.length == 0) {
+		if (menudata) {
+			displayPdfButton(menudata);
+		}
+		return;
+	}
+
+	var level = list[0]["@level"];
+	clearLevelsStartingAt(level);
+
+	var output = "";
+	output += "<select onchange='updateList(" + level + ")'>";
+	for (var i=0; i<list.length; i++) {
+		output += "<option value='" + list[i]["@title"] + "'>";
+		output += list[i]["@title"].replace(/ZZZ/g, "'");
+		output += "</option>";
+	}
+	output += "</select>";
+	var selector = "#level" + level;
+	var element = document.querySelector(selector);
+	if (element) {
+		element.innerHTML = output;
+	}
+
+	if (list.length >= 1) {
+		displayLevel(list[0]);
+	}
+
+}
+
+
+
+//////////////////////////////
+//
+// displayPdfButton --
+//
+
+function displayPdfButton(menudata) {
+	if (!menudata) {
+		console.log("Error: entry is not defined");
+		return;
+	}
+	var shortcut = menudata.shortcut;
+	if (!shortcut) {
+		console.log("Error: shortcut was not found in", menudata);
+		return;
+	}
+	var abutton = document.querySelector("#actionbuttons");
+	if (!abutton) {
+		console.log("Error: button location is not available");
+		return;
+	}
+	var output = "";
+	output += "<div class='pdfbutton' onclick='generatePdf(\"" + shortcut + "\")'>Generate Music PDF</div>";
+	abutton.innerHTML = output;
+}
+
+
+
+//////////////////////////////
+//
+// generatePdf --
+//
+
+function generatePdf(id) {
+	console.log("ID TO DOWNLOAD IS ", id);
+	var url = "http://pdf.musedata.org?id=" + id;
+	window.open(url, "_blank");
+}
+
+
+
+//////////////////////////////
+//
+// updateList --
+//
+
+function updateList(level) {
+	clearLevelsStartingAt(level+1);
+	var path = [];
+	var levels = document.querySelector("#levels");
+	var i;
+	for (i=1; i<=level; i++) {
+		var element = levels.querySelector("#level" + i + " select");
+		if (!element) {
+			continue;
+		}
+		path.push(element.value);
+	}
+	var obj = MENUDATA;
+	for (i=0; i<path.length; i++) {
+		obj = obj[path[i]];
+	}
+	displayLevel(obj);
+}
+
+
+
+//////////////////////////////
+//
+// clearLevelsStartingAt --
+//
+
+function clearLevelsStartingAt(level) {
+	var levels = document.querySelector("#levels");
+	var level1;
+	var level2;
+	var level3;
+	var level4;
+	var level5;
+
+	if (level <= 5) {
+		var level5 = levels.querySelector("#level5");
+		level5.innerHTML = "";
+	}
+
+	if (level <= 4) {
+		var level4 = levels.querySelector("#level4");
+		level4.innerHTML = "";
+	}
+
+	if (level <= 3) {
+		var level3 = levels.querySelector("#level3");
+		level3.innerHTML = "";
+	}
+
+	if (level <= 2) {
+		var level2 = levels.querySelector("#level2");
+		level2.innerHTML = "";
+	}
+
+	if (level <= 1) {
+		var level1 = levels.querySelector("#level1");
+		level1.innerHTML = "";
+	}
+
+	var buttons = document.querySelector("#actionbuttons");
+	if (buttons) {
+		buttons.innerHTML = "";
+	}
+}
+
+
+
+//////////////////////////////
+//
+// prepareMenuIndex --
+//
+
+function prepareMenuIndex(text) {
+	var lines  = text.match(/[^\r\n]+/g);
+	var headerLine = -1;
+	var headers = [];
+	var i;
+	var output = {};
+	var cells;
+	for (i=0; i<lines.length; i++) {
+		cells = lines[i].split(/\t/);
+		if (!cells[0].match(/LEVEL[_\s]1/i)) {
+			continue;
+		}
+		headerLine = i;
+		headers = cells;
+		break;
+	}
+	if (headerLine < 0) {
+		return {};
+	}
+	var columns = {};
+	for (i=0; i<cells.length; i++) {
+		columns[cells[i]] = i;
+	}
+
+	var shortcut;
+	var dataurl;
+	var wikiurl;
+	var level1;
+	var level2;
+	var level3;
+	var level4;
+	var level5;
+	var max;
+	var obj;
+	for (i=headerLine+1; i<lines.length; i++) {
+		cells = lines[i].split(/\t/);
+		if (cells.length < 1) {
+			continue;
+		}
+		if (cells[0].match(/^\s*$/)) {
+			continue;
+		}
+		level1   = cells[columns["LEVEL_1"]]  || "";
+		level2   = cells[columns["LEVEL_2"]]  || "";
+		level3   = cells[columns["LEVEL_3"]]  || "";
+		level4   = cells[columns["LEVEL_4"]]  || "";
+		level5   = cells[columns["LEVEL_5"]]  || "";
+		shortcut = cells[columns["SHORTCUT"]] || "";
+		dataurl  = cells[columns["DATA_URL"]] || "";
+		wikiurl  = cells[columns["WIKI_URL"]] || "";
+
+		level1   = level1.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
+		level2   = level2.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
+		level3   = level3.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
+		level4   = level4.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
+		level5   = level5.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
+
+		if (shortcut.match(/^\s*$/)) { continue; }
+		if (dataurl.match(/^\s*$/)) { continue; }
+
+		if (!level5.match(/^\s*$/)) { max = 5; }
+		else if (!level4.match(/^\s*$/)) { max = 4; }
+		else if (!level3.match(/^\s*$/)) { max = 3; }
+		else if (!level2.match(/^\s*$/)) { max = 2; }
+		else if (!level1.match(/^\s*$/)) { max = 1; }
+		if (max < 2) {
+			continue;
+		}
+		if (max == 5) {
+			if (!output[level1]) { 
+				output[level1] = { "@level": 1, "@line":i, "@title":level1 }; 
+			}
+			if (!output[level1][level2]) { 
+				output[level1][level2] = { "@level": 2, "@line":i, "@title":level2}; 
+			}
+			if (!output[level1][level2][level3]) { 
+				output[level1][level2][level3] = { "@level": 3, "@line":i, "@title":level3}; 
+			}
+			if (!output[level1][level2][level3][level4]) { 
+				output[level1][level2][level3][level4] = { "@level": 4, "@line":i, "@title":level4}; 
+			}
+			if (!output[level1][level2][level3][level4][level5]) { 
+				output[level1][level2][level3][level4][level5] = { "@level": 5, "@line":i, "@title":level5}; 
+			}
+			obj = output[level1][level2][level3][level4][level5];
+		} else if (max == 4) {
+			if (!output[level1]) { 
+				output[level1] = { "@level": 1, "@line":i, "@title":level1}; 
+			}
+			if (!output[level1][level2]) { 
+				output[level1][level2] = { "@level": 2, "@line":i, "@title":level2}; 
+			}
+			if (!output[level1][level2][level3]) { 
+				output[level1][level2][level3] = { "@level": 3, "@line":i, "@title":level3}; 
+			}
+			if (!output[level1][level2][level3][level4]) { 
+				output[level1][level2][level3][level4] = { "@level": 4, "@line":i, "@title":level4}; 
+			}
+			obj = output[level1][level2][level3][level4];
+		} else if (max == 3) {
+			if (!output[level1]) { 
+				output[level1] = { "@level": 1, "@line":i, "@title":level1}; 
+			}
+			if (!output[level1][level2]) { 
+				output[level1][level2] = { "@level": 2, "@line":i, "@title":level2}; 
+			}
+			if (!output[level1][level2][level3]) { 
+				output[level1][level2][level3] = { "@level": 3, "@line":i, "@title":level3}; 
+			}
+			obj = output[level1][level2][level3];
+		} else if (max == 2) {
+			if (!output[level1]) { 
+				output[level1] = { "@level": 1, "@line":i, "@title":level1}; 
+			}
+			if (!output[level1][level2]) { 
+				output[level1][level2] = { "@level": 2, "@line":i, "@title":level2}; 
+			}
+			obj = output[level1][level2];
+		} else {
+			continue;
+		}
+		obj.shortcut = shortcut.replace(/\s+/g, "");
+		obj.dataurl = dataurl;
+		obj.wikiurl = wikiurl;
+		obj["@line"] = i;
+	}
+
+	return output;
+}
+
+
+</script>
