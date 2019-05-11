@@ -67,6 +67,7 @@ function displayLevel(menudata) {
 	if (list.length == 0) {
 		if (menudata) {
 			displayPdfButton(menudata);
+			displayInfo(menudata);
 		}
 		return;
 	}
@@ -92,6 +93,69 @@ function displayLevel(menudata) {
 		displayLevel(list[0]);
 	}
 
+}
+
+
+//////////////////////////////
+//
+// displayInfo --
+//
+
+function displayInfo(menudata) {
+	if (!menudata) {
+		console.log("Error: entry is not defined");
+		return;
+	}
+	var dataurl = menudata.dataurl;
+	var wikiurl = menudata.wikiurl;
+
+	var element = document.querySelector("div#info");
+	if (!element) {
+		console.log("Error: could not found info div");
+		return;
+	}
+	var output = "";
+	output += "<ul style='padding-bottom:0; margin-bottom:0;'>";
+
+	if (wikiurl && !wikiurl.match(/^\s*$/)) {
+		output += "<li>";
+		output += "<a target='data' href='" + wikiurl + "'>";
+		output += "Associated website for selected music: ";
+		output += wikiurl.replace(/http[s]:\/\//, "");
+		output += "</a>";
+		output += "</li>";
+	}
+
+	if (dataurl && !dataurl.match(/^\s*$/)) {
+		var bburl = dataurl.replace(/\/raw\//, "/src/");
+		output += "<li>";
+		output += "<a target='data' href='" + bburl + "'>";
+		output += "Link to source data for PDF in BitBucket";
+		if (dataurl.match(/\.md2/)) {
+			output += " (Musedata stage 2 format)";
+		} else if (dataurl.match(/\.iff/)) {
+			output += " (page-layout file format)";
+		}
+		output += "</a>";
+		
+		output += "</li>";
+	}
+
+	if (dataurl && !dataurl.match(/^\s*$/)) {
+		output += "<li>";
+		output += "<a target='data' href='" + dataurl + "'>";
+		output += "Link to raw data";
+		if (dataurl.match(/\.md2/)) {
+			output += " (Musedata stage 2 format)";
+		} else if (dataurl.match(/\.iff/)) {
+			output += " (page-layout file format)";
+		}
+		output += "</a>";
+		
+		output += "</li>";
+	}
+
+	element.innerHTML = output;
 }
 
 
@@ -222,7 +286,7 @@ function prepareMenuIndex(text) {
 	var cells;
 	for (i=0; i<lines.length; i++) {
 		cells = lines[i].split(/\t/);
-		if (!cells[0].match(/LEVEL[_\s]1/i)) {
+		if (!cells[0].match(/^\s*LEVEL_1\s*$/i)) {
 			continue;
 		}
 		headerLine = i;

@@ -1,5 +1,5 @@
 ---
-title: SUPRA About page
+title: MuseData About page
 author: Craig Stuart Sapp
 keywords: homepage
 permalink: /about/index.html
@@ -7,9 +7,14 @@ summary:
 ---
 
 
-# About SUPRA #
+# About Musedata #
 
-A description of SUPRA will go here.
+A description of Musedata will go here.
+
+
+
+
+
 
 <div style="height:500px"></div>
 

@@ -1,21 +1,21 @@
-
 {% include scripts/scripts-common.html %}
-<script>{% include scripts/aton.js %}</script>
 
 <script>
 // vim: ts=3
-
-var aton = new ATON;
-var LINKS = aton.parse(`{% include data/links.aton %}`).LINK;
 
 var CGI = {};      // CGI parameters from URL
 var ROLLINFO = [];
 var ATONINDEX = "https://raw.githubusercontent.com/pianoroll/SUPRA/master/index.aton";
 
+
+//////////////////////////////
+//
+// DOMContentLoaded event listener --
+//
+
 document.addEventListener("DOMContentLoaded", function () {
 	HighlightLinkInHeader();
 	CGI = GetCgiParameters();
-
 	if (sessionStorage.ROLLINFO) {
 		ROLLINFO = JSON.parse(sessionStorage.ROLLINFO);
 		doAction(ROLLINFO);
@@ -39,12 +39,9 @@ document.addEventListener("DOMContentLoaded", function () {
 //
 
 function doAction(rollInfo) {
-	DisplayStats(rollInfo);
-	displayLinks(LINKS, "#links");
+	DisplayStats(ROLLINFO);
 }
 
 
+
 </script>
-
-
-
