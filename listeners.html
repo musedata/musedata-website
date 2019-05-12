@@ -6,6 +6,8 @@
 
 var CGI = {};      // CGI parameters from URL
 var MENUDATA = [];
+var SHORTCUTS = {};
+var ID = "";
 
 
 //////////////////////////////
@@ -23,6 +25,9 @@ document.addEventListener("DOMContentLoaded", function () {
 	url += "&format=tsv";
 
 	CGI = GetCgiParameters();
+	if (CGI.id) {
+		ID = CGI.id;
+	}
 
 	var request = new XMLHttpRequest();
 	request.addEventListener("load", function () {
@@ -41,7 +46,44 @@ document.addEventListener("DOMContentLoaded", function () {
 //
 
 function doAction(menudata) {
-	displayLevel(menudata);
+	if (!ID.match(/^\s*$/)) {
+console.log("ID", ID);
+		var entry = SHORTCUTS[ID];
+console.log("ENTRY", entry);
+		if (entry) {
+			displayShortcut(entry);
+		} else {
+			displayLevel(menudata);
+		}
+	} else {
+		displayLevel(menudata);
+	}
+}
+
+
+
+//////////////////////////////
+//
+// displayShortcut --
+//
+
+function displayShortcut(entry) {
+	var path = entry["@path"];
+	if (path.length > 0) {
+		displayLevel(MENUDATA, path[0]["@title"]);
+	}
+	if (path.length > 1) {
+		displayLevel(path[0], path[1]["@title"]);
+	}
+	if (path.length > 2) {
+		displayLevel(path[1], path[2]["@title"]);
+	}
+	if (path.length > 3) {
+		displayLevel(path[2], path[3]["@title"]);
+	}
+	if (path.length > 4) {
+		displayLevel(path[3], path[4]["@title"]);
+	}
 }
 
 
@@ -51,7 +93,7 @@ function doAction(menudata) {
 // displayLevel --
 //
 
-function displayLevel(menudata) {
+function displayLevel(menudata, selection) {
 	var list = [];
 	for (var key in menudata) {
 		if (typeof menudata[key] === "string") {
@@ -78,7 +120,11 @@ function displayLevel(menudata) {
 	var output = "";
 	output += "<select onchange='updateList(" + level + ")'>";
 	for (var i=0; i<list.length; i++) {
-		output += "<option value='" + list[i]["@title"] + "'>";
+		output += "<option value='" + list[i]["@title"] + "'";
+		if (selection && selection === list[i]["@title"]) {
+			output += " selected";
+		}
+		output += ">";
 		output += list[i]["@title"].replace(/ZZZ/g, "'");
 		output += "</option>";
 	}
@@ -193,7 +239,6 @@ function displayPdfButton(menudata) {
 //
 
 function generatePdf(id) {
-	console.log("ID TO DOWNLOAD IS ", id);
 	var url = "http://pdf.musedata.org?id=" + id;
 	window.open(url, "_blank");
 }
@@ -278,6 +323,7 @@ function clearLevelsStartingAt(level) {
 //
 
 function prepareMenuIndex(text) {
+	SHORTCUTS = {};
 	var lines  = text.match(/[^\r\n]+/g);
 	var headerLine = -1;
 	var headers = [];
@@ -402,6 +448,27 @@ function prepareMenuIndex(text) {
 		obj.dataurl = dataurl;
 		obj.wikiurl = wikiurl;
 		obj["@line"] = i;
+		obj["@path"] = [];
+		if (!level1.match(/^\s*$/)) {
+			obj["@path"].push(output[level1]);
+			if (!level2.match(/^\s*$/)) {
+				obj["@path"].push(output[level1][level2]);
+				if (!level3.match(/^\s*$/)) {
+					obj["@path"].push(output[level1][level2][level3]);
+					if (!level4.match(/^\s*$/)) {
+						obj["@path"].push(output[level1][level2][level3][level4]);
+						if (!level5.match(/^\s*$/)) {
+							obj["@path"].push(output[level1][level2][level3][level4][level5]);
+						}
+					}
+				}
+			}
+		}
+		if (SHORTCUTS[obj.shortcut]) {
+			console.log("WARNING: shortcut", shortcut, "already exists:", SHORTCUTS[obj.shortcut]);
+		} else {
+			SHORTCUTS[obj.shortcut] = obj;
+		}
 	}
 
 	return output;
