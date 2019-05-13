@@ -1,0 +1,52 @@
+
+{% include scripts/scripts-common.html %}
+
+<script>
+// vim: ts=3
+
+var CGI = {};      // CGI parameters from URL
+var MENUDATA = [];
+var ID = "";
+
+
+//////////////////////////////
+//
+// DOMContentLoaded event listener --
+//
+
+document.addEventListener("DOMContentLoaded", function () {
+	CGI = GetCgiParameters();
+	if (CGI.id) {
+		ID = CGI.id;
+	}
+
+	// Create URL for work index to download:
+	var sid = "1U4Z-NeU2FGk_qNq6BwXeSVN-p8AnZsWbRHGo5fk3f3A"
+	var gid = "0";
+	var url = "https://docs.google.com/spreadsheets/d/";
+	url += sid + "/export?gid=" + gid + "&format=tsv";
+
+	var request = new XMLHttpRequest();
+	request.addEventListener("load", function () {
+		MENUDATA = PrepareMenuIndex(this.responseText)
+		doAction(MENUDATA);
+	});
+	request.open("GET", url);
+	request.send();
+});
+
+
+
+//////////////////////////////
+//
+// doAction --
+//
+
+function doAction(menudata) {
+}
+
+
+</script>
+
+
+

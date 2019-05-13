@@ -1,0 +1,44 @@
+
+{% include_relative listeners.html %}
+
+<script>
+
+
+//////////////////////////////
+//
+// generatePdfFromUrl --
+//
+
+function generatePdf(selector) {
+	var element = document.querySelector(selector);
+	if (!element) {
+		return;
+	}
+	var value = element.value;
+	generatePdfFromUrl(value);
+}
+
+
+
+//////////////////////////////
+//
+// generatePdfFromUrl --
+//
+
+function generatePdfFromUrl(url) {
+	if (!url) {
+		return;
+	}
+	if (url.match(/^\s*$/)) {
+		return;
+	}
+	url = url.replace(/['";\s]+/g, "");
+	url = "http://pdf.musedata.org?url=" + encodeURI(url);
+	window.open(url, "_blank");
+}
+
+
+</script>
+
+
+
