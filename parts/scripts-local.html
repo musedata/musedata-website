@@ -1,0 +1,197 @@
+
+{% include_relative listeners.html %}
+
+<script>
+// vim: ts=3
+
+
+//////////////////////////////
+//
+// doSearch --
+//
+
+function doSearch() {
+	var element = document.querySelector("#instrument");
+	if (!element) {
+		console.log("Error: cannot find instrument list");
+		return;
+	}
+	var value = element.value;
+	var i;
+	if (NAME) {
+		value = NAME;
+		var re = RegExp(NAME, "i");
+		var olist = element.querySelectorAll("option");
+		for (i=0; i<olist.length; i++) {
+			if (olist[i].value.match(re)) {
+				element.value = olist[i].value;
+				break;
+			}
+		}
+		NAME = "";
+	}
+	var re = new RegExp(value, "i");
+	
+	var matches = [];
+	var item;
+	for (i=0; i<LIST.length; i++) {
+		item = LIST[i];
+		var path = item["@path"];
+		if (!path) {
+			continue;
+		}
+		if (path.length < 2) {
+			continue;
+		}
+		if (!path[path.length - 2]["@title"].match(/^parts/i)) {
+			continue;
+		}
+		var title = item["@title"];
+		if (!title.match(re)) {
+			continue;
+		}
+		matches.push(item);
+	}
+
+	var output = [];
+	var oitem;
+	var j;
+	for (i=0; i<matches.length; i++) {
+		item = matches[i];
+		path = item["@path"];
+
+		oitem = {};
+		oitem.cols = [];
+		oitem.names = [];
+		oitem.ids = [];
+		oitem.names.push(item["@title"]);
+		oitem.ids.push(item["shortcut"]);
+		for (j=0; j<path.length; j++) {
+			if (path[j]["@title"].match(/^parts/i)) {
+				break;
+			}
+			oitem.cols.push(path[j]["@title"]);
+		}
+
+		if (output.length == 0) {
+			output.push(oitem);
+			continue;
+		}
+
+		var olast = output[output.length - 1];
+		var same = areSame(oitem, olast);
+		if (!same) {
+			output.push(oitem);
+			continue;
+		}
+	
+		olast.names.push(oitem.names[0]);
+		olast.ids.push(oitem.ids[0]);
+	}
+	displayResults(output);
+}
+
+
+//////////////////////////////
+//
+// displayResults --
+//
+
+function displayResults(matches) {
+	var element = document.querySelector("#list");
+	if (!element) {
+		return;
+	}
+	element.innerHTML = "";
+	var output = "";
+	output += "<table class='list'>";
+
+	var i;
+	var j;
+	var different;
+	for (i=0; i<matches.length; i++) {
+		if (i == 0) {
+			output += "<tr>";
+
+			for (j=0; j<4; j++) {
+				output += "<td>";
+				if (j < matches[i].cols.length) {
+					output += matches[i].cols[j];
+				}
+				output += "</td>";
+			}
+
+			output += "<td style='max-width:500px;'>";
+			for (j=0; j<matches[i].names.length; j++) {
+				output += "<a target='_blank' href='http://pdf.musedata.org/?id=";
+				output += matches[i].ids[j];
+				output += "'>" + matches[i].names[j];
+				output += "</a>";
+				if (j < matches[i].names.length - 1) {
+					output += ", ";
+				}
+			}
+			output += "</td>";
+
+			output += "</tr>";
+			continue;
+		}
+
+		output += "<tr>";
+		different = 0;
+		for (j=0; j<4; j++) {
+			output += "<td>";
+			if (j < matches[i].cols.length) {
+				if (matches[i].cols[j] != matches[i-1].cols[j]) {
+					different = 1;
+				}
+				if (different) {
+					output += matches[i].cols[j];
+				}
+			}
+			output += "</td>";
+		}
+
+		output += "<td style='max-width:500px;'>";
+		for (j=0; j<matches[i].names.length; j++) {
+			output += "<a target='_blank' href='http://pdf.musedata.org/?id=";
+			output += matches[i].ids[j];
+			output += "'>" + matches[i].names[j];
+			output += "</a>";
+			if (j < matches[i].names.length - 1) {
+				output += ", ";
+			}
+		}
+		output += "</td>";
+
+		output += "</tr>";
+	}
+
+	output += "</table>";
+	element.innerHTML = output;
+}
+
+
+
+//////////////////////////////
+//
+// areSame --
+//
+
+function areSame(obj1, obj2) {
+	if (obj1.cols.length != obj2.cols.length) {
+		return 0;
+	}
+	for (var i=0; i<obj1.cols.length; i++) {
+		if (obj1.cols[i] !== obj2.cols[i]) {
+			return 0;
+		}
+	}
+	return 1;
+}
+
+</script>
+
+
+
+

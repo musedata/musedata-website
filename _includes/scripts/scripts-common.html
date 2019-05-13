@@ -2,6 +2,8 @@
 // vim: ts=3
 
 var SHORTCUTS = {};
+var LIST = [];
+
 
 //////////////////////////////
 //
@@ -67,6 +69,7 @@ function GetCgiParameters() {
 
 function PrepareMenuIndex(text) {
 	SHORTCUTS = {};
+	LIST = [];
 	var lines  = text.match(/[^\r\n]+/g);
 	var headerLine = -1;
 	var headers = [];
@@ -212,6 +215,7 @@ function PrepareMenuIndex(text) {
 		} else {
 			SHORTCUTS[obj.shortcut] = obj;
 		}
+		LIST.push(obj);
 	}
 
 	return output;
