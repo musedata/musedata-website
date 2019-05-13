@@ -1,6 +1,8 @@
 <script>
 // vim: ts=3
 
+var SHORTCUTS = {};
+
 //////////////////////////////
 //
 // HighlightLinkInHeader --
@@ -54,6 +56,165 @@ function GetCgiParameters() {
       }
    }
    return output;
+}
+
+
+
+//////////////////////////////
+//
+// PrepareMenuIndex --
+//
+
+function PrepareMenuIndex(text) {
+	SHORTCUTS = {};
+	var lines  = text.match(/[^\r\n]+/g);
+	var headerLine = -1;
+	var headers = [];
+	var i;
+	var output = {};
+	var cells;
+	for (i=0; i<lines.length; i++) {
+		cells = lines[i].split(/\t/);
+		if (!cells[0].match(/^\s*LEVEL_1\s*$/i)) {
+			continue;
+		}
+		headerLine = i;
+		headers = cells;
+		break;
+	}
+	if (headerLine < 0) {
+		return {};
+	}
+	var columns = {};
+	for (i=0; i<cells.length; i++) {
+		columns[cells[i]] = i;
+	}
+
+	var shortcut;
+	var dataurl;
+	var wikiurl;
+	var level1;
+	var level2;
+	var level3;
+	var level4;
+	var level5;
+	var max;
+	var obj;
+	for (i=headerLine+1; i<lines.length; i++) {
+		cells = lines[i].split(/\t/);
+		if (cells.length < 1) {
+			continue;
+		}
+		if (cells[0].match(/^\s*$/)) {
+			continue;
+		}
+		level1   = cells[columns["LEVEL_1"]]  || "";
+		level2   = cells[columns["LEVEL_2"]]  || "";
+		level3   = cells[columns["LEVEL_3"]]  || "";
+		level4   = cells[columns["LEVEL_4"]]  || "";
+		level5   = cells[columns["LEVEL_5"]]  || "";
+		shortcut = cells[columns["SHORTCUT"]] || "";
+		dataurl  = cells[columns["DATA_URL"]] || "";
+		wikiurl  = cells[columns["WIKI_URL"]] || "";
+
+		level1   = level1.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
+		level2   = level2.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
+		level3   = level3.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
+		level4   = level4.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
+		level5   = level5.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
+
+		if (shortcut.match(/^\s*$/)) { continue; }
+		if (dataurl.match(/^\s*$/)) { continue; }
+
+		if (!level5.match(/^\s*$/)) { max = 5; }
+		else if (!level4.match(/^\s*$/)) { max = 4; }
+		else if (!level3.match(/^\s*$/)) { max = 3; }
+		else if (!level2.match(/^\s*$/)) { max = 2; }
+		else if (!level1.match(/^\s*$/)) { max = 1; }
+		if (max < 2) {
+			continue;
+		}
+		if (max == 5) {
+			if (!output[level1]) { 
+				output[level1] = { "@level": 1, "@line":i, "@title":level1 }; 
+			}
+			if (!output[level1][level2]) { 
+				output[level1][level2] = { "@level": 2, "@line":i, "@title":level2}; 
+			}
+			if (!output[level1][level2][level3]) { 
+				output[level1][level2][level3] = { "@level": 3, "@line":i, "@title":level3}; 
+			}
+			if (!output[level1][level2][level3][level4]) { 
+				output[level1][level2][level3][level4] = { "@level": 4, "@line":i, "@title":level4}; 
+			}
+			if (!output[level1][level2][level3][level4][level5]) { 
+				output[level1][level2][level3][level4][level5] = { "@level": 5, "@line":i, "@title":level5}; 
+			}
+			obj = output[level1][level2][level3][level4][level5];
+		} else if (max == 4) {
+			if (!output[level1]) { 
+				output[level1] = { "@level": 1, "@line":i, "@title":level1}; 
+			}
+			if (!output[level1][level2]) { 
+				output[level1][level2] = { "@level": 2, "@line":i, "@title":level2}; 
+			}
+			if (!output[level1][level2][level3]) { 
+				output[level1][level2][level3] = { "@level": 3, "@line":i, "@title":level3}; 
+			}
+			if (!output[level1][level2][level3][level4]) { 
+				output[level1][level2][level3][level4] = { "@level": 4, "@line":i, "@title":level4}; 
+			}
+			obj = output[level1][level2][level3][level4];
+		} else if (max == 3) {
+			if (!output[level1]) { 
+				output[level1] = { "@level": 1, "@line":i, "@title":level1}; 
+			}
+			if (!output[level1][level2]) { 
+				output[level1][level2] = { "@level": 2, "@line":i, "@title":level2}; 
+			}
+			if (!output[level1][level2][level3]) { 
+				output[level1][level2][level3] = { "@level": 3, "@line":i, "@title":level3}; 
+			}
+			obj = output[level1][level2][level3];
+		} else if (max == 2) {
+			if (!output[level1]) { 
+				output[level1] = { "@level": 1, "@line":i, "@title":level1}; 
+			}
+			if (!output[level1][level2]) { 
+				output[level1][level2] = { "@level": 2, "@line":i, "@title":level2}; 
+			}
+			obj = output[level1][level2];
+		} else {
+			continue;
+		}
+		obj.shortcut = shortcut.replace(/\s+/g, "");
+		obj.dataurl = dataurl;
+		obj.wikiurl = wikiurl;
+		obj["@line"] = i;
+		obj["@path"] = [];
+		if (!level1.match(/^\s*$/)) {
+			obj["@path"].push(output[level1]);
+			if (!level2.match(/^\s*$/)) {
+				obj["@path"].push(output[level1][level2]);
+				if (!level3.match(/^\s*$/)) {
+					obj["@path"].push(output[level1][level2][level3]);
+					if (!level4.match(/^\s*$/)) {
+						obj["@path"].push(output[level1][level2][level3][level4]);
+						if (!level5.match(/^\s*$/)) {
+							obj["@path"].push(output[level1][level2][level3][level4][level5]);
+						}
+					}
+				}
+			}
+		}
+		if (SHORTCUTS[obj.shortcut]) {
+			console.log("WARNING: shortcut", shortcut, "already exists:", SHORTCUTS[obj.shortcut]);
+		} else {
+			SHORTCUTS[obj.shortcut] = obj;
+		}
+	}
+
+	return output;
 }
 
 

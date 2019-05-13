@@ -1,11 +1,12 @@
+
 {% include scripts/scripts-common.html %}
 
 <script>
 // vim: ts=3
 
 var CGI = {};      // CGI parameters from URL
-var ROLLINFO = [];
-var ATONINDEX = "https://raw.githubusercontent.com/pianoroll/SUPRA/master/index.aton";
+var MENUDATA = [];
+var ID = "";
 
 
 //////////////////////////////
@@ -14,21 +15,24 @@ var ATONINDEX = "https://raw.githubusercontent.com/pianoroll/SUPRA/master/index.
 //
 
 document.addEventListener("DOMContentLoaded", function () {
-	HighlightLinkInHeader();
 	CGI = GetCgiParameters();
-	if (sessionStorage.ROLLINFO) {
-		ROLLINFO = JSON.parse(sessionStorage.ROLLINFO);
-		doAction(ROLLINFO);
-	} else {
-		var request = new XMLHttpRequest();
-		request.addEventListener("load", function () {
-			var aton = new ATON;
-			ROLLINFO = aton.parse(this.responseText).ROLL;
-			doAction(ROLLINFO);
-		});
-		request.open("GET", ATONINDEX);
-		request.send();
+	if (CGI.id) {
+		ID = CGI.id;
 	}
+
+	// Create URL for work index to download:
+	var sid = "1U4Z-NeU2FGk_qNq6BwXeSVN-p8AnZsWbRHGo5fk3f3A"
+	var gid = "0";
+	var url = "https://docs.google.com/spreadsheets/d/";
+	url += sid + "/export?gid=" + gid + "&format=tsv";
+
+	var request = new XMLHttpRequest();
+	request.addEventListener("load", function () {
+		MENUDATA = PrepareMenuIndex(this.responseText)
+		doAction(MENUDATA);
+	});
+	request.open("GET", url);
+	request.send();
 });
 
 
@@ -38,10 +42,11 @@ document.addEventListener("DOMContentLoaded", function () {
 // doAction --
 //
 
-function doAction(rollInfo) {
-	DisplayStats(ROLLINFO);
+function doAction(menudata) {
 }
 
 
-
 </script>
+
+
+
