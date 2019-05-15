@@ -7,7 +7,7 @@ summary:
 ---
 
 
-# Musedata menu list #
+# Musedata file list #
 
 The following spreadsheet contains a list of all PDFs available on
 the musedata homepage.  Each line references a specific file on
@@ -37,12 +37,16 @@ with the muse2ps program.  </p>
 </ul>
 
 The order of the entries in the spreadsheet will be preserved in the menu selection on the musedata
-homepage.  Blank lines can be added to separate works for readability.
+homepage.  Blank lines can be added to separate works for readability.  Here is what the final 
+rendering of the list will look like (refresh page after editing spreadsheet to view updated list):
+
+<br/><br/>
 
 
+<div style="font-size:14pt; line-height:17pt;" id="list"></div>
 
 
-<div style="height:500px"></div>
+<div style="height:200px"></div>
 
 {% include_relative scripts-local.html %}
 {% include_relative styles-local.html %}

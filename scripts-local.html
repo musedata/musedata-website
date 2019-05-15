@@ -112,7 +112,7 @@ function displayInfo(menudata) {
 	if (wikiurl && !wikiurl.match(/^\s*$/)) {
 		output += "<li>";
 		output += "<a target='data' href='" + wikiurl + "'>";
-		output += "Associated website: ";
+		output += "See: ";
 		output += wikiurl.replace(/http[s]:\/\//, "");
 		output += "</a>";
 		output += "</li>";
@@ -184,7 +184,7 @@ function displayPdfButton(menudata) {
 		return;
 	}
 	var output = "";
-	output += "<div class='pdfbutton' onclick='generatePdf(\"" + shortcut + "\")'>Generate Music PDF</div>";
+	output += "<div class='pdfbutton' onclick='generatePdf(\"" + shortcut + "\")'>Download Music PDF</div>";
 	abutton.innerHTML = output;
 }
 
@@ -274,8 +274,193 @@ function clearLevelsStartingAt(level) {
 
 
 
+//////////////////////////////
+//
+// displayFlatList --
+//
+
+function displayFlatList(list) {
+	var element = document.querySelector("#list");
+	if (!element) {
+		console.log("Error: #list not found");
+		return;
+	}
+	element.innerHTML = "";
+	var output = "";
+	output += "<table class='list'>";
+
+	var i;
+	// var different;
+
+	for (i=0; i<list.length; i++) {
+		//if (isPart(list[i])) {
+		//	continue;
+		//}
+		[content, i] = printEntry(list, i);
+		output += content;
+	}
+
+	output += "</table>";
+	element.innerHTML = output;
+}
+
+
+
+//////////////////////////////
+//
+// printEntry --
+//
+
+function printEntry(list, index) {
+	var obj = list[index];
+	var oobj;
+	if (index > 0) {
+		oobj = list[index-1];
+	} else {
+		oobj = null;
+	}
+	var output = "";
+	var text;
+	var newindex = index;
+	var content;
+	var partQ;
+	var path = obj["@path"];
+	output += "<tr>";
+	for (i=0; i<path.length; i++) {
+		output += "<td";
+		partQ = isPart(obj);
+		if (partQ) {
+			output += " class='parts'";
+		}
+		output += ">";
+		if (oobj && oobj["@path"][i] && (path[i]["@title"] === oobj["@path"][i]["@title"])) {
+			text = cleanText(path[i]["@title"])
+			output += "<div class='hidden-cell'>";
+			output += text;
+			output += "</div>";
+			continue;
+		}
+		if (i < path.length) {
+			text = cleanText(path[i]["@title"])
+			if (text.match(/^parts?/i)) {
+				output += "<i>" + text + ":</i>";
+				[content, newindex] = printParts(list, index)
+				output += " " + content;
+				break;
+			} else if (i == path.length - 1) {
+				output += "<a target='pdf' href='";
+				output += "http://pdf.musedata.org/?id=" + list[index].shortcut;
+				output += "'>";
+				output += text;
+				output += "</a>";
+			} else {
+				output += text;
+			}
+		}
+		output += "</td>";
+	}
+	output += "</tr>";
+	return [output, newindex];
+}
+
+
+
+//////////////////////////////
+//
+// isPart --
+//
+
+function isPart(obj) {
+	var path = obj["@path"];
+	if (!path) {
+		console.log("Error: no path in object to check");
+		return 0;
+	}
+	if (path.length < 2) {
+		console.log("Warning: path too short");
+		return 0;
+	}	
+	if (path[path.length-2]["@title"].match(/^parts?/i)) {
+		return 1;
+	}
+	return 0;
+}
+
+
+
+//////////////////////////////
+//
+// printParts --
+//
+
+function printParts(list, index) {
+	var obj = list[index];
+	var path = list[index]["@path"];
+	var output = "";
+	output += "<a target='pdf' href='";
+	output += "http://pdf.musedata.org/?id=" + list[index].shortcut;
+	output += "'>";
+	output += path[path.length-1]["@title"];
+	output += "</a>";
+
+	var i = index+1;
+
+	while (areSameXPart(list[i], list[i-1])) {
+		path = list[i]["@path"];
+		output += ", ";
+		output += "<a target='pdf' href='";
+		output += "http://pdf.musedata.org/?id=" + list[i].shortcut;
+		output += "'>";
+		output += path[path.length-1]["@title"];
+		output += "</a>";
+		i++;
+	}
+
+	return [output, i-1];
+}
+
+
+
+//////////////////////////////
+//
+// areSameXPart --
+//
+
+function areSameXPart(obj1, obj2) {
+	if (obj1["@path"].length != obj2["@path"].length) {
+		return 0;
+	}
+	for (var i=0; i<obj1["@path"].length; i++) {
+		if (obj1["@path"][i]["@title"] !== obj2["@path"][i]["@title"]) {
+			return 0;
+		}
+		if (obj1["@path"][i]["@title"].match(/^parts?/i)) {
+			break;
+		}
+	}
+	return 1;
+}
+
+
+
+//////////////////////////////
+//
+// cleanText --
+//
+
+function cleanText(text) {
+	return text.replace(/-flat/g, "&flat;").replace(/-sharp/g, "&sharp;").replace(/ZZZ/g, "'");
+}
+
+
 
 </script>
+
+
+
+
+
+
 
 
 
