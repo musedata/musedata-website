@@ -1,0 +1,444 @@
+#!/usr/bin/perl
+#
+# Programmer:    Craig Stuart Sapp <craig@ccrma.stanford.edu>
+# Creation Date: Thu 16 May 17:02:22 PDT 2019
+# Last Modified: Thu 23 Jan 2020 07:49:58 PM PST
+# Filename:      musesheet
+# Syntax:        perl 5
+# vim:           ts=3:nowrap
+#
+# Description:   Command-line interface to the Musedata control spreadsheet:
+#                    https://docs.google.com/spreadsheets/d/1U4Z-NeU2FGk_qNq6BwXeSVN-p8AnZsWbRHGo5fk3f3A/edit#gid=0
+#                This script is used to check the structure of the spreadsheet, and
+#                also can download the PDF and data files for each entry in the
+#                spreadsheet.
+#
+
+use strict;
+
+sub printHelp {
+	print <<"EOT";
+
+Usage: $0 [options]
+
+Options:
+	-u         == Print spreadsheet URL (for TSV formatted data).
+	-r         == Print raw spreadsheet data (TSV format).
+	--headings == Print a list of spreadsheet headings and their column indexes.
+	--ids      == list all PDF/data IDs in spreadsheet.
+	-p dir     == Download all PDFs mentioned in spreadsheet to specified directory.
+	-d dir     == Download all data files mentioned in spreadsheet to specified directory.
+	--check-pdfs dir == Check if PDFs listed in spreadsheet have been downloaded.
+	--check-data dir == Check if data files listed in spreadsheet have been downloaded.
+
+EOT
+}
+
+
+# Use wget or curl as available on the computer.  These are used
+# to download data from the web from the command-line.
+my $wget = `which wget`;
+chomp $wget;
+my $curl = `which curl`;
+chomp $curl;
+if (($wget =~ /^\s*$/) && ($curl =~ /^\s*$/)) {
+	die "Cannot find wget or curl on your computer.\n";
+}
+my $download = $curl;
+if ($download =~ /^\s*$/) {
+	$download = "wget -O - ";
+}
+
+
+# Line in spreadsheet that contains the header for each column.
+# There is documentation on the lines above this one, which is
+# why it does not start at 0.
+my $Headerlineindex = 9; 
+
+
+# Process script options:
+my $helpQ       = 0; # print option list and then exit.
+my $urlQ        = 0; # print only URL of spreadsheet and then exit
+my $rawQ        = 0; # print the contents of the spreadsheet (in TSV format)
+my $idQ         = 0; # print IDs for PDFs.
+my $headingsQ   = 0; # print only the spreadsheet column headings
+my $pdfdir      = 0; # download all PDFs.
+my $checkpdfdir = 0; # check to see if all PDFs are downloaded compared to spreadsheet entries.
+my $datadir     = 0; # download all data files.
+my $checkdatadir= 0; # check to see if all data files are downloaded compared to spreadsheet entries.
+
+use Getopt::Long;
+Getopt::Long::Configure("bundling");
+GetOptions (
+   'h|help' => \$helpQ,
+   'u|url'  => \$urlQ,
+   'r|raw'  => \$rawQ,
+	'id|ids' => \$idQ,
+   'head|heading|headings' => \$headingsQ,
+	'p|pdf|pdfs=s' => \$pdfdir,
+	'check-pdf|check-pdfs|checkpdf|checkpdfs=s' => \$checkpdfdir,
+	'd|data|data-dir=s' => \$datadir,
+	'check-data|checkdata=s' => \$checkdatadir
+);
+
+if ($helpQ) {
+	printHelp();
+	exit(0);
+}
+
+# Construct URL for master index (TSV format) for download:
+my $sid = "1U4Z-NeU2FGk_qNq6BwXeSVN-p8AnZsWbRHGo5fk3f3A";
+my $gid = "0";
+my $url = "https://docs.google.com/spreadsheets/d/";
+$url .= "$sid/export?gid=$gid&format=tsv";
+
+if ($urlQ) {
+	print "$url\n";
+	exit(0);
+}
+ 
+my @CONTENTS = getSpreadsheetContents($url);
+
+if ($rawQ) {
+	print join("\n", @CONTENTS), "\n";
+	exit(0);
+}
+
+my %HEADER = getHeaderIndexes($CONTENTS[$Headerlineindex]);
+
+if ($headingsQ) {
+	printColumnHeadings(%HEADER);
+	exit(0);
+} elsif ($idQ) {
+	printIds();
+	exit(0);
+} elsif ($pdfdir) {
+	downloadPdfs($pdfdir);
+	exit(0);
+} elsif ($checkpdfdir) {
+	checkPdfs($checkpdfdir);
+	exit(0);
+} elsif ($datadir) {
+	downloadData($datadir);
+	exit(0);
+} elsif ($checkdatadir) {
+	checkData($checkdatadir);
+	exit(0);
+}
+
+
+exit(0);
+
+###########################################################################
+
+
+##############################
+##
+## checkData -- Check to see if any new data files should be downloaded.  A list
+##     of data files listed in the spreadsheet that are not found in the data
+##     directory will be printed, one file per line.  If there is no
+##     output from this function, then that means that all data files have been
+###    downloaded (but it is possible that they could be out of date).
+##
+
+sub checkData {
+	my ($datadir) = @_;
+	die "Cannot read directory $datadir\n" if !-d $datadir;
+	my @files = sort glob("$datadir/*");
+	my @ids = getDataIds();
+	my %mapping;
+	for (my $i=0; $i<@files; $i++) {
+		my $base = $files[$i];
+		$base =~ s/.*\///;
+		$base =~ s/\.[^\.]+$//;
+		$mapping{$base} = 1;
+	}
+	for (my $i=0; $i<@ids; $i++) {
+		my $id = $ids[$i];
+		if ($mapping{$id} =~ /^\s*$/) {
+			print "$id\n";
+		}
+	}
+}
+
+
+
+##############################
+##
+## checkPdfs -- Check to see if any new PDFs should be downloaded.  A list
+##     of PDFs listed in the spreadsheet that are not found in the PDF
+##     directory will be printed, one file per line.  If there is no
+##     output from this function, then that means that all PDFs have been
+###    downloaded (but it is possible that they could be out of date).
+##
+
+sub checkPdfs {
+	my ($pdfdir) = @_;
+	die "Cannot read directory $pdfdir\n" if !-d $pdfdir;
+	my @files = sort glob("$pdfdir/*.pdf");
+	my @ids = getDataIds();
+	my %mapping;
+	for (my $i=0; $i<@files; $i++) {
+		my $base = $files[$i];
+		$base =~ s/.*\///;
+		$base =~ s/\.pdf$//;
+		$mapping{$base} = 1;
+	}
+	for (my $i=0; $i<@ids; $i++) {
+		my $id = $ids[$i];
+		if ($mapping{$id} =~ /^\s*$/) {
+			print "$id\n";
+		}
+	}
+}
+
+
+
+##############################
+##
+## downloadData -- Download all of the datafiles in the spreadsheet.
+##     If the data has already been downloaded, then do not download.
+##     If you want to force a redownloading, then either delete 
+##     all copies of the data in the specified directory, or 
+##     download to a new directory.
+##
+
+sub downloadData {
+	my ($directory) = @_;
+	if (!-d "$directory") {
+		`mkdir -p $directory`;
+	}
+	my %dataurls = getDataUrlHash();
+	my @ids = sort keys %dataurls;
+
+	for (my $i=0; $i<@ids; $i++) {
+		my $id = $ids[$i];
+		my $url = $dataurls{$id};
+		next if $url =~ /^\s*$/;
+		my $extension = "txt";
+		if ($url =~ /\.([^\.]+)$/) {
+			$extension = $1;
+		}
+		next if -r "$directory/$id.$extension";
+		print STDERR "Downloading $directory/$id.$extension\n";
+		`$download "$url" > $directory/$id.$extension 2> /dev/null`;
+	}
+}
+
+
+
+##############################
+##
+## downloadPdfs -- Download all of the PDFs in the spreadsheet.
+##     If the PDF has already been downloaded, then do not download.
+##     If you want to force a redownloading, then either delete 
+##     all copies of the PDF in the specified directory, or 
+##     download to a new directory.
+##
+
+sub downloadPdfs {
+	my ($directory) = @_;
+	if (!-d "$directory") {
+		`mkdir -p $directory`;
+	}
+	my @ids = getDataIds();
+
+	my $urlbase = "http://pdf.musedata.org/?id=";
+
+	for (my $i=0; $i<@ids; $i++) {
+		my $id = $ids[$i];
+		next if -r "$directory/$id.pdf";
+		print STDERR "Downloading $directory/$id.pdf\n";
+		`$download "$urlbase$id" > $directory/$id.pdf 2> /dev/null`;
+	}
+}
+
+
+
+##############################
+##
+## getDataIds -- return the IDs for each PDF in the spreadsheet.
+##
+
+sub getDataIds {
+	my @data = getColumnData("SHORTCUT", @CONTENTS);
+	my @output;
+	for (my $i=0; $i<@data; $i++) {
+		next if $data[$i] =~ /^\s*$/;
+		$output[@output] = $data[$i];
+	}
+	return @output;
+}
+
+
+
+##############################
+##
+## getDataUrlHash --  Return a list of data urls index by the SHORTCUT column.
+##
+
+sub getDataUrlHash {
+	return getHashById("DATA_URL");
+}
+
+
+
+##############################
+##
+## getHashById --
+##
+
+sub getHashById {
+	my ($heading) = @_;
+	my @ids   = getColumnData("SHORTCUT", @CONTENTS);
+	my @other = getColumnData($heading, @CONTENTS);
+	my %output;
+	for (my $i=0; $i<@ids; $i++) {
+		my $id = $ids[$i];
+		next if $id =~ /^\s*$/;
+		$output{$id} = $other[$i];
+	}
+	return %output;
+}
+
+
+
+##############################
+##
+## printIds --
+##
+
+sub printIds {
+	my @list = getDataIds();
+	print join("\n", @list), "\n";
+}
+
+
+
+##############################
+##
+## getMetadataParameter --  Extract a reference record value from a spreadsheet row.
+##    If a Humdrum parameter, it will be cleaned; otherwise, it will be the raw value.
+##
+
+sub getMetadataParameter {
+   my ($parameter, $line) = @_;
+   my @fields = split(/\t/, $line);
+
+   my $pindex;
+   my $value;
+
+   if ($parameter =~ /^\d*$/) {
+      $pindex = $parameter;
+   } else {
+      $pindex = $HEADER{$parameter};
+   }
+   die "Cannot understand parameter $parameter\n" if $pindex =~ /^\s*$/;
+   $value = $fields[$pindex];
+
+   return $value;
+}
+
+
+
+##############################
+##
+## getColumnData -- Get the contents of a column in the spreadsheet.
+##     If a line is empty, then an empty string will be added to the 
+##     list.  The column data starts after the column heading line
+##     (which is currently the 10th row in the spreadsheet).
+##  Input parameters:
+##     $parameter = a string that should match the column heading
+##                  that you want to extract.
+##     @data      = Rows of the spreadsheet to extract from.
+##
+
+sub getColumnData {
+   my ($parameter, @data) = @_;
+
+   my @output;
+   for (my $i=$Headerlineindex+1; $i<@data; $i++) {
+      my $line = $data[$i];
+      $output[@output] = getMetadataParameter($parameter, $line);
+   }
+   return @output;
+}
+
+
+
+##############################
+##
+## printColumnHeadings -- Print a list of the headings for columns of data in the
+##     spreadsheet.  There are two columns in the output: the first field is
+##     a column index that gives the column position of the heading, and the
+###    second value is the textual heading.
+##
+
+sub printColumnHeadings {
+	my %headings = @_;
+
+   my @keys = keys %headings;
+	my @output;
+   for (my $i=0; $i<@keys; $i++) {
+      next if $keys[$i] =~ /^\s*$/;
+      $output[@output] = "$headings{$keys[$i]}\t$keys[$i]";
+   }
+	print join("\n", sort @output), "\n";
+}
+
+
+
+##############################
+##
+## getSpreadsheetContents -- Download spread sheet with metadata.
+##     https://docs.google.com/spreadsheets/d/17rjKQ3lXJHEHAcDfOXTDNX5a0A_jVqwokcaqhd3Ddng/edit#gid=90
+## As a TSV text file:
+##     https://docs.google.com/spreadsheets/d/17rjKQ3lXJHEHAcDfOXTDNX5a0A_jVqwokcaqhd3Ddng/export?gid=
+##
+
+sub getSpreadsheetContents  {
+   my ($url) = @_;
+   my $data = `$download "$url" 2> /dev/null`;
+   $data =~ s/\xc2\xa0/ /g;
+   $data =~ s/ +\t/\t/g;
+   $data =~ s/\t +/\t/g;
+   if ($data =~ /^\s*$/) {
+      print STDERR "CONTENTS: $data\n";
+      die "Problem downloading spreadsheet $url\n";
+   }
+   my @output = split("\n", $data);
+   for (my $i=0; $i<@output; $i++) {
+      $output[$i] =~ s/ +$//;
+      $output[$i] =~ s/^ +//;
+   }
+   chomp @output;
+   for (my $i=0; $i<@output; $i++) {
+      $output[$i] =~ s/[ ^M]+$//;
+      $output[$i] =~ s/^[ ^M]+//;
+   }
+   return @output;
+}
+
+
+##############################
+##
+## getHeaderIndexes -- Return the header text to column index for data.
+##
+
+sub getHeaderIndexes {
+   my ($line) = @_;
+   my %output;
+   my @fields = split(/\t/, $line);
+   for (my $i=0; $i<@fields; $i++) {
+      my $value = $fields[$i];
+      $value =~ s/^\s+//;
+      $value =~ s/\s+$//;
+      $value =~ s/\s+$/ /g;
+      next if $value =~ /^\s*$/;
+      $output{$value} = $i;
+   }
+
+   return %output;
+}
+
+

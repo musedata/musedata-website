@@ -32,6 +32,7 @@ Choose an instrument from the menu below to display available parts in the mused
 	<option value="viola">viola</option>
 	<option value="violoncello">violoncello</option>
 	<option value="contrabass">contrabass</option>
+	<option value="continuo">continuo</option>
 </select>
 
 <div style="margin-top:50px;" id="list"></div>
