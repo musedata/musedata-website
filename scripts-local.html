@@ -122,7 +122,7 @@ function displayInfo(menudata) {
 		var bburl = dataurl.replace(/\/raw\//, "/src/");
 		output += "<li>";
 		output += "<a target='data' href='" + bburl + "'>";
-		output += "Source data for PDF on BitBucket";
+		output += "Source data for PDF";
 		output += "</a>";
 		
 		output += "</li>";
@@ -142,15 +142,16 @@ function displayInfo(menudata) {
 		output += "</li>";
 	}
 
+/*
 	if (dataurl && !dataurl.match(/^\s*$/)) {
 		var newurl = dataurl.replace(/raw\/.*/, "") + "issues";
 		output += "<li>";
 		output += "<a target='data' href='" + newurl + "'>";
 		output += "Report problem with music/data";
 		output += "</a>";
-		
 		output += "</li>";
 	}
+*/
 
 	if (dataurl && dataurl.match(/\.md2$/)) {
 		output += "<li>";
