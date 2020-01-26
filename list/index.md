@@ -9,10 +9,11 @@ summary:
 
 # Musedata file list #
 
-The following spreadsheet contains a list of all PDFs available on
-the musedata homepage.  Each line references a specific file on
-Bitbucket, Github, or other website that can be converted into a
-PDF file with muse2ps.
+The following spreadsheet 
+(<a target="_blank" href="http://bit.ly/musedata-menu">http://bit.ly/musedata-menu</a>)
+contains a list of all PDFs available on the musedata homepage.
+Each line references a specific file on Bitbucket, Github, or other
+website that can be converted into a PDF file with muse2ps.
 
 <iframe style="width:100%; height:600px;" src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTTZN-R0h99A6x2Xc74PA1NuAFLQbUx8Kw_DsKvZPkJ2Hh_-knqQoeS6Yd07Yb2VoWR7LITIRnTAkSt/pubhtml?gid=0&amp;single=true&amp;widget=true&amp;headers=true"></iframe>
 
