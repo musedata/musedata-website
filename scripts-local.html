@@ -347,25 +347,35 @@ function printEntry(list, index) {
 	var content;
 	var partQ;
 	var path = obj["@path"];
+
 	output += "<tr>";
 	var colspan = 0;
 	for (i=0; i<path.length; i++) {
+
+		output += "<td class='hanging-indent' ";
+
+		partQ = isPart(obj);
+		if (partQ) {
+			output += " class='parts' ";
+		}
+
 		colspan = 0;
-		if (i == path.length - 1) {
+		if (partQ && (i == path.length - 2)) {
+			colspan = 5 - i + 1;
+			if (colspan < 1) {
+				colspan = 0;
+			}
+		} else if (i == path.length - 1) {
 			colspan = 5 - path.length + 1;
 			if (colspan < 1) {
 				colspan = 0;
 			}
 		}
-console.log("COLSPAN = ", colspan);
-		output += "<td class='hanging-indent' ";
+
 		if (colspan) {
 			output += 'colspan="' + colspan + '" ';
 		}
-		partQ = isPart(obj);
-		if (partQ) {
-			output += " class='parts'";
-		}
+
 		output += ">";
 		if (oobj && oobj["@path"][i] 
 				&& (path[i]["@title"] === oobj["@path"][i]["@title"])
