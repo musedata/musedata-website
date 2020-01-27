@@ -128,7 +128,7 @@ function displayInfo(menudata) {
 			// https://raw.githubusercontent.com/josquin-research-project/Jos/master/Jos2830-Scaramella.krn
 			// to:
 			// https://github.com/josquin-research-project/Jos/blob/master/Jos2830-Scaramella.krn
-			bburl = dataurl.replace(/raw\.githubusercontent\.com/, "/github.com/").replace(/master/, "/blob/master/").replace(/\/+/g, "/");
+			bburl = dataurl.replace(/raw\.githubusercontent\.com/, "/github.com/").replace(/master/, "/blob/master/").replace(/\/+/g, "/").replace("musedata.org/", "");;
 		}
 		output += "<li>";
 		output += "<a target='data' href='" + bburl + "'>";
