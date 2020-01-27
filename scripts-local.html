@@ -128,12 +128,12 @@ function displayInfo(menudata) {
 			// https://raw.githubusercontent.com/josquin-research-project/Jos/master/Jos2830-Scaramella.krn
 			// to:
 			// https://github.com/josquin-research-project/Jos/blob/master/Jos2830-Scaramella.krn
-			bburl = dataurl.replace(/raw\.githubusercontent\.com/, "/github.com/").replace(/master/, "/blob/master/").replace(/\/+/g, "/");
+			bburl = dataurl.replace(/raw\.githubusercontent\.com/, "//github.com/")
+				.replace(/master/, "blob/master");
 		}
 		output += "<li>";
 		output += "<a target='data' href='";
 		output += bburl 
-console.log("BBURL", bburl, output);
 		output += "'>";
 		output += "Source data for PDF on";
 		if (dataurl.match(/bitbucket/)) {
@@ -179,10 +179,8 @@ console.log("BBURL", bburl, output);
 		output += "N.B.: automatic typesetting from symbolic data";
 		output += "</li>";
 	}
-console.log("OUTPUT", output);
 
 	element.innerHTML = output;
-console.log("ELEMENT", element);
 }
 
 
