@@ -328,7 +328,7 @@ function displayFlatList(list) {
 
 //////////////////////////////
 //
-// printEntry --
+// printEntry -- Print one line of the flat listing table.
 //
 
 function printEntry(list, index) {
@@ -346,8 +346,19 @@ function printEntry(list, index) {
 	var partQ;
 	var path = obj["@path"];
 	output += "<tr>";
+	var colspan = 0;
 	for (i=0; i<path.length; i++) {
+		colspan = 0;
+		if (i == path.length - 1) {
+			colspan = 5 - path.length + 1;
+			if (colspan < 1) {
+				colspan = 0;
+			}
+		}
 		output += "<td class='hanging-indent' ";
+		if (colspan) {
+			output += 'colspan="' + colspan + '" ';
+		}
 		partQ = isPart(obj);
 		if (partQ) {
 			output += " class='parts'";
@@ -390,14 +401,17 @@ function printEntry(list, index) {
 
 //////////////////////////////
 //
-// formatText --
+// formatText -- Force non-breaking spaces after certain abbreviations.
 //
 
 function formatText(text) {
 	return text
+			.replace(/RV\s+/g, "RV&nbsp;")
 			.replace(/op\.\s+/g, "op.&nbsp;")
 			.replace(/no\.\s+/g, "no.&nbsp;");
 }
+
+
 
 //////////////////////////////
 //
