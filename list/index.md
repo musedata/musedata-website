@@ -36,7 +36,7 @@ representations if the music, (2) files ending in .iff are more
 direct representations of the graphical music.  Both formats can
 be converted into PostScript with the muse2ps program.  </p> </li>
 
-<li> The "WIKI_URL" column contains a URL to the CCARH wiki page
+<li> The "URL" column contains a URL to the CCARH wiki page
 related to the musical work. </li>
 
 </ul>

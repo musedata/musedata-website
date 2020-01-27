@@ -99,7 +99,7 @@ function displayInfo(menudata) {
 		return;
 	}
 	var dataurl = menudata.dataurl;
-	var wikiurl = menudata.wikiurl;
+	var infourl = menudata.url;
 
 	var element = document.querySelector("div#info");
 	if (!element) {
@@ -109,20 +109,35 @@ function displayInfo(menudata) {
 	var output = "";
 	output += "<ul style='padding-bottom:0; margin-bottom:0;'>";
 
-	if (wikiurl && !wikiurl.match(/^\s*$/)) {
+	if (infourl && !infourl.match(/^\s*$/)) {
 		output += "<li>";
-		output += "<a target='data' href='" + wikiurl + "'>";
-		output += "See: ";
-		output += wikiurl.replace(/http[s]:\/\//, "");
+		output += "See: <a target='data' href='" + infourl + "'>";
+		output += infourl.replace(/http[s]:\/\//, "");
 		output += "</a>";
 		output += "</li>";
 	}
 
 	if (dataurl && !dataurl.match(/^\s*$/)) {
-		var bburl = dataurl.replace(/\/raw\//, "/src/");
+		var bburl;
+		if (dataurl.match(/bitbucket/)) {
+			// https://bitbucket.org/musedata/beethoven/raw/master/bhl/orch/sym9/editions/public/score/mvt4a.md2
+			// to:
+			// https://bitbucket.org/musedata/beethoven/src/master/bhl/orch/sym9/editions/public/score/mvt4a.md2
+			bburl = dataurl.replace(/\/raw\//, "/src/");
+		} else if (dataurl.match(/github/)) {
+			// https://raw.githubusercontent.com/josquin-research-project/Jos/master/Jos2830-Scaramella.krn
+			// to:
+			// https://github.com/josquin-research-project/Jos/blob/master/Jos2830-Scaramella.krn
+			bburl = dataurl.replace(/raw\.githubusercontent\.com/, "/github.com/").replace(/master/, "/blob/master/").replace(/\/+/g, "/");
+		}
 		output += "<li>";
 		output += "<a target='data' href='" + bburl + "'>";
-		output += "Source data for PDF";
+		output += "Source data for PDF on";
+		if (dataurl.match(/bitbucket/)) {
+			output += " bitbucket";
+		} else if (dataurl.match(/github/)) {
+			output += " github";
+		}
 		output += "</a>";
 		
 		output += "</li>";
@@ -133,9 +148,13 @@ function displayInfo(menudata) {
 		output += "<a target='data' href='" + dataurl + "'>";
 		output += "Raw data";
 		if (dataurl.match(/\.md2/)) {
-			output += " (Musedata stage 2 format)";
+			output += " (Musedata file)";
+		} else if (dataurl.match(/\.msd/)) {
+			output += " (Musedata file)";
 		} else if (dataurl.match(/\.iff/)) {
-			output += " (page-layout file format)";
+			output += " (page-layout file)";
+		} else if (dataurl.match(/\.krn/)) {
+			output += " (Humdrum file)";
 		}
 		output += "</a>";
 		
@@ -333,7 +352,10 @@ function printEntry(list, index) {
 			output += " class='parts'";
 		}
 		output += ">";
-		if (oobj && oobj["@path"][i] && (path[i]["@title"] === oobj["@path"][i]["@title"])) {
+		if (oobj && oobj["@path"][i] 
+				&& (path[i]["@title"] === oobj["@path"][i]["@title"])
+				&& (!path[i]["@title"].match(/part/i))
+				) {
 			text = cleanText(path[i]["@title"])
 			output += "<div class='hidden-cell'>";
 			output += text;
@@ -414,6 +436,9 @@ function printParts(list, index) {
 		output += path[path.length-1]["@title"];
 		output += "</a>";
 		i++;
+		if (list[i] == null) {
+			break;
+		}
 	}
 
 	return [output, i-1];

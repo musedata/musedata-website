@@ -95,7 +95,7 @@ function PrepareMenuIndex(text) {
 
 	var shortcut;
 	var dataurl;
-	var wikiurl;
+	var url;
 	var level1;
 	var level2;
 	var level3;
@@ -118,7 +118,7 @@ function PrepareMenuIndex(text) {
 		level5   = cells[columns["LEVEL_5"]]  || "";
 		shortcut = cells[columns["SHORTCUT"]] || "";
 		dataurl  = cells[columns["DATA_URL"]] || "";
-		wikiurl  = cells[columns["WIKI_URL"]] || "";
+		url      = cells[columns["URL"]] || "";
 
 		level1   = level1.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
 		level2   = level2.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
@@ -192,7 +192,7 @@ function PrepareMenuIndex(text) {
 		}
 		obj.shortcut = shortcut.replace(/\s+/g, "");
 		obj.dataurl = dataurl;
-		obj.wikiurl = wikiurl;
+		obj.url = url;
 		obj["@line"] = i;
 		obj["@path"] = [];
 		if (!level1.match(/^\s*$/)) {
