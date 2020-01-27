@@ -132,7 +132,9 @@ function displayInfo(menudata) {
 		}
 		output += "<li>";
 console.log("BBURL", bburl);
-		output += "<a target='data' href='" + bburl + "'>";
+		output += "<a target='data' href='";
+		output += bburl 
+		output += "'>";
 		output += "Source data for PDF on";
 		if (dataurl.match(/bitbucket/)) {
 			output += " bitbucket";
@@ -355,6 +357,7 @@ function printEntry(list, index) {
 				colspan = 0;
 			}
 		}
+console.log("COLSPAN = ", colspan);
 		output += "<td class='hanging-indent' ";
 		if (colspan) {
 			output += 'colspan="' + colspan + '" ';
