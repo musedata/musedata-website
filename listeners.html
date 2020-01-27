@@ -6,7 +6,11 @@
 
 var CGI = {};      // CGI parameters from URL
 var MENUDATA = [];
+var MENUDATA_BOTH = [];
+var MENUDATA_AUTOMATIC = [];
+var MENUDATA_MANUAL = [];
 var ID = "";
+var DATATYPE = "both";
 
 
 //////////////////////////////
@@ -28,7 +32,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	var request = new XMLHttpRequest();
 	request.addEventListener("load", function () {
-		MENUDATA = PrepareMenuIndex(this.responseText)
+		MENUDATA_BOTH = PrepareMenuIndexBoth(this.responseText)
+		MENUDATA_AUTOMATIC = PrepareMenuIndexAutomatic(this.responseText)
+		MENUDATA_MANUAL = PrepareMenuIndexManual(this.responseText)
+		MENUDATA = MENUDATA_BOTH;
+		LIST = LIST_BOTH;
+		SHORTCUTS = SHORTCUTS_BOTH;
 		doAction(MENUDATA);
 	});
 	request.open("GET", url);

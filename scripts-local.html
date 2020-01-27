@@ -138,7 +138,7 @@ function displayInfo(menudata) {
 		} else if (dataurl.match(/github/)) {
 			output += " github";
 		}
-		output += "</a> " + bburl;
+		output += "</a>";
 		
 		output += "</li>";
 	}
@@ -299,7 +299,7 @@ function clearLevelsStartingAt(level) {
 //
 
 function displayFlatList(list) {
-	var element = document.querySelector("#list");
+	var element = document.querySelector("#flat-list");
 	if (!element) {
 		console.log("Error: #list not found");
 		return;
@@ -346,7 +346,7 @@ function printEntry(list, index) {
 	var path = obj["@path"];
 	output += "<tr>";
 	for (i=0; i<path.length; i++) {
-		output += "<td";
+		output += "<td class='hanging-indent' ";
 		partQ = isPart(obj);
 		if (partQ) {
 			output += " class='parts'";
@@ -358,7 +358,7 @@ function printEntry(list, index) {
 				) {
 			text = cleanText(path[i]["@title"])
 			output += "<div class='hidden-cell'>";
-			output += text;
+			output += formatText(text);
 			output += "</div>";
 			continue;
 		}
@@ -373,7 +373,7 @@ function printEntry(list, index) {
 				output += "<a target='pdf' href='";
 				output += "http://pdf.musedata.org/?id=" + list[index].shortcut;
 				output += "'>";
-				output += text;
+				output += formatText(text);
 				output += "</a>";
 			} else {
 				output += text;
@@ -386,6 +386,17 @@ function printEntry(list, index) {
 }
 
 
+
+//////////////////////////////
+//
+// formatText --
+//
+
+function formatText(text) {
+	return text
+			.replace(/op\.\s+/g, "op.&nbsp;")
+			.replace(/no\.\s+/g, "no.&nbsp;");
+}
 
 //////////////////////////////
 //
@@ -445,6 +456,34 @@ function printParts(list, index) {
 }
 
 
+//////////////////////////////
+//
+// selectTypesettingGroup --
+//
+
+function selectTypesettingGroup() {
+	var element = document.querySelector("select#data-type");
+	if (!element) {
+		return;
+	}
+	var value = element.value;
+	if (value === "automatic") {
+		LIST = LIST_AUTOMATIC;
+		SHORTCUTS = SHORTCUTS_AUTOMATIC;
+		MENUDATA = MENUDATA_AUTOMATIC;
+	} else if (value === "manual") {
+		LIST = LIST_MANUAL;
+		SHORTCUTS = SHORTCUTS_MANUAL;
+		MENUDATA = MENUDATA_MANUAL;
+	} else {
+		LIST = LIST_BOTH;
+		SHORTCUTS = SHORTCUTS_BOTH;
+		MENUDATA = MENUDATA_BOTH;
+	}
+
+	doAction(MENUDATA);
+}
+
 
 //////////////////////////////
 //
@@ -480,12 +519,6 @@ function cleanText(text) {
 
 
 </script>
-
-
-
-
-
-
 
 
 

@@ -18,7 +18,8 @@ summary:
 
 <table style="margin-top:20px;" class="menu">
 <tr>
-<td style="padding-right:150px; vertical-align:bottom;">
+<td style="min-width:561px; padding-right:50px; vertical-align:bottom;">
+
 	<div id="levels">
 		<div id="level1"></div>
 		<div id="level2"></div>
@@ -28,7 +29,14 @@ summary:
 	</div>
 	<div id="actionbuttons"></div>
 </td>
-<td style="vertical-align:bottom;">
+<td style="vertical-align:top;">
+
+	<select style="margin-bottom: 60px;" id="data-type" onchange='selectTypesettingGroup()'>
+		<option value="both">manual and automatic typesettings</option>
+		<option value="manual">manual typesettings only</option>
+		<option value="automatic">automatic typesettings only</option>
+	</select>
+
 	<div style="font-size:90%;" id="info"></div>
 </td>
 </tr>
@@ -39,7 +47,7 @@ summary:
 
 <h2 style="padding-bottom:50px;"> Flat listing of scores </h2>
 
-<div style="font-size:14pt; line-height:17pt;" id="list"></div>
+<div style="font-size:14pt; line-height:17pt;" id="flat-list"></div>
 
 
 {% include_relative styles-local.html %}
