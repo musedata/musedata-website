@@ -131,9 +131,9 @@ function displayInfo(menudata) {
 			bburl = dataurl.replace(/raw\.githubusercontent\.com/, "/github.com/").replace(/master/, "/blob/master/").replace(/\/+/g, "/").replace("musedata.org/", "");;
 		}
 		output += "<li>";
-console.log("BBURL", bburl);
 		output += "<a target='data' href='";
 		output += bburl 
+console.log("BBURL", bburl, output);
 		output += "'>";
 		output += "Source data for PDF on";
 		if (dataurl.match(/bitbucket/)) {
