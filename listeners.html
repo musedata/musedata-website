@@ -25,10 +25,17 @@ document.addEventListener("DOMContentLoaded", function () {
 	}
 
 	// Create URL for work index to download:
-	var sid = "1U4Z-NeU2FGk_qNq6BwXeSVN-p8AnZsWbRHGo5fk3f3A"
-	var gid = "0";
-	var url = "https://docs.google.com/spreadsheets/d/";
-	url += sid + "/export?gid=" + gid + "&format=tsv";
+	// No longer works, redirect to different website for TSV extraction probably causing CORS problem.
+	// var sid = "1U4Z-NeU2FGk_qNq6BwXeSVN-p8AnZsWbRHGo5fk3f3A"
+	// var gid = "0";
+	// var url = "https://docs.google.com/spreadsheets/d/";
+	// url += sid + "/export?gid=" + gid + "&format=tsv";
+
+	// Alternate url (also has CORS problem):
+	//var url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTZN-R0h99A6x2Xc74PA1NuAFLQbUx8Kw_DsKvZPkJ2Hh_-knqQoeS6Yd07Yb2VoWR7LITIRnTAkSt/pub?gid=0&single=true&output=tsv";
+
+	// Get local copy downloaded from above spreadsheet:
+	url = "/list/musedata-index.txt";
 
 	var request = new XMLHttpRequest();
 	request.addEventListener("load", function () {
@@ -41,6 +48,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		doAction(MENUDATA);
 	});
 	request.open("GET", url);
+	request.setRequestHeader('Access-Control-Allow-Origin', '*');
 	request.send();
 });
 
