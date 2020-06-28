@@ -4,3 +4,7 @@ _site
 .jekyll-metadata
 worklist-old.json
 Gemfile.lock
+list/pdfs
+list/pdfs-*
+list/data
+list/data-*

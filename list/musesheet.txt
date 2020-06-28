@@ -16,6 +16,9 @@
 
 use strict;
 
+use POSIX qw(strftime);
+my $datestring = strftime "%Y%m%d", localtime;
+
 sub printHelp {
 	print <<"EOT";
 
@@ -30,6 +33,7 @@ Options:
 	-d dir     == Download all data files mentioned in spreadsheet to specified directory.
 	--check-pdfs dir == Check if PDFs listed in spreadsheet have been downloaded.
 	--check-data dir == Check if data files listed in spreadsheet have been downloaded.
+	--no-date  == do not postfix pdf or data directories with date
 
 EOT
 }
@@ -47,6 +51,8 @@ if (($wget =~ /^\s*$/) && ($curl =~ /^\s*$/)) {
 my $download = $curl;
 if ($download =~ /^\s*$/) {
 	$download = "wget -O - ";
+} else {
+	$download .= " -L";
 }
 
 
@@ -66,6 +72,7 @@ my $pdfdir      = 0; # download all PDFs.
 my $checkpdfdir = 0; # check to see if all PDFs are downloaded compared to spreadsheet entries.
 my $datadir     = 0; # download all data files.
 my $checkdatadir= 0; # check to see if all data files are downloaded compared to spreadsheet entries.
+my $nodateQ     = 0; # check to see if date should not be prefixed to PDF saving directory.
 
 use Getopt::Long;
 Getopt::Long::Configure("bundling");
@@ -78,7 +85,8 @@ GetOptions (
 	'p|pdf|pdfs=s' => \$pdfdir,
 	'check-pdf|check-pdfs|checkpdf|checkpdfs=s' => \$checkpdfdir,
 	'd|data|data-dir=s' => \$datadir,
-	'check-data|checkdata=s' => \$checkdatadir
+	'check-data|checkdata=s' => \$checkdatadir,
+	'no-date' => \$nodateQ
 );
 
 if ($helpQ) {
@@ -87,10 +95,13 @@ if ($helpQ) {
 }
 
 # Construct URL for master index (TSV format) for download:
-my $sid = "1U4Z-NeU2FGk_qNq6BwXeSVN-p8AnZsWbRHGo5fk3f3A";
-my $gid = "0";
-my $url = "https://docs.google.com/spreadsheets/d/";
-$url .= "$sid/export?gid=$gid&format=tsv";
+# No longer works (redirected):
+#my $sid = "1U4Z-NeU2FGk_qNq6BwXeSVN-p8AnZsWbRHGo5fk3f3A";
+#my $gid = "0";
+#my $url = "https://docs.google.com/spreadsheets/d/";
+#$url .= "$sid/export?gid=$gid&format=tsv";
+
+my $url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTZN-R0h99A6x2Xc74PA1NuAFLQbUx8Kw_DsKvZPkJ2Hh_-knqQoeS6Yd07Yb2VoWR7LITIRnTAkSt/pub?gid=0&single=true&output=tsv";
 
 if ($urlQ) {
 	print "$url\n";
@@ -205,6 +216,10 @@ sub checkPdfs {
 
 sub downloadData {
 	my ($directory) = @_;
+	if (!$nodateQ) {
+		my $date = strftime "%Y%m%d", localtime;
+		$directory .= "-$date";
+	}
 	if (!-d "$directory") {
 		`mkdir -p $directory`;
 	}
@@ -238,11 +253,14 @@ sub downloadData {
 
 sub downloadPdfs {
 	my ($directory) = @_;
+	if (!$nodateQ) {
+		my $date = strftime "%Y%m%d", localtime;
+		$directory .= "-$date";
+	}
 	if (!-d "$directory") {
 		`mkdir -p $directory`;
 	}
 	my @ids = getDataIds();
-
 	my $urlbase = "http://pdf.musedata.org/?id=";
 
 	for (my $i=0; $i<@ids; $i++) {
