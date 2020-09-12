@@ -15,6 +15,8 @@ document.addEventListener("DOMContentLoaded", function() {
 	var url2 = "https://script.google.com/d/1d59rM3iG6FIQSOlTeELU6nTpgi96c042_R-BpC7kuyIhP3rDc57xNbck/edit?usp=sharing";
  	var request = new XMLHttpRequest();
 	request.open("GET", url2);
+	console.log("MODE", request.mode);
+	request.mode = "no-cors";
 	request.send();
 	request.addEventListener("load", function() {
 		var data = request.responseText;
