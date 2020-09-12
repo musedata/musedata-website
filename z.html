@@ -1,0 +1,29 @@
+<html>
+<head>
+<title>Spreadsheet TSV test</title>
+</head>
+<body style="background:#f0f0ff;">
+
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function() {
+	var id = "AKfycbzffB12IgUoGzJlIXvrV-9OLEk-OEBrUrAi0D1OmQkfsV7XWMU";
+	var url = "https://script.google.com/macros/s/" + id + "/exec";
+ 	var request = new XMLHttpRequest();
+	request.open("GET", url);
+	request.send();
+	request.addEventListener("load", function() {
+		var data = request.responseText;
+		var delement = document.querySelector("#data");
+		delement.innerHTML = data;
+	});
+});
+
+</script>
+
+<pre id="data">DATA WILL BE PLACED HERE</pre>
+
+
+</body>
+</html>
