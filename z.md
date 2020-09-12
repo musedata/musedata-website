@@ -7,25 +7,23 @@ vim: ts=3
 summary: 
 ---
 
-<script>
 
+<script>
 document.addEventListener("DOMContentLoaded", function() {
-	var id = "AKfycbzffB12IgUoGzJlIXvrV-9OLEk-OEBrUrAi0D1OmQkfsV7XWMU";
-	var url = "https://script.google.com/macros/s/" + id + "/exec";
-	var url2 = "https://script.google.com/d/1d59rM3iG6FIQSOlTeELU6nTpgi96c042_R-BpC7kuyIhP3rDc57xNbck/edit?usp=sharing";
+	var url = "https://script.google.com/macros/s/AKfycbzQ9dUvP7pY2rjeju48Z1rH17BtKMbKLmXo1XyR8WFmwfup7Cg/exec";
  	var request = new XMLHttpRequest();
-	request.open("GET", url2);
-	console.log("MODE", request.mode);
-	request.mode = "no-cors";
+	request.open("GET", url);
 	request.send();
 	request.addEventListener("load", function() {
 		var data = request.responseText;
 		var delement = document.querySelector("#data");
 		delement.innerHTML = data;
 	});
+
 });
-
 </script>
-
 <pre id="data">DATA WILL BE PLACED HERE</pre>
+
+
+
 
