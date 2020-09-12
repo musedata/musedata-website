@@ -1,9 +1,11 @@
-<html>
-<head>
-<title>Spreadsheet TSV test</title>
-</head>
-<body style="background:#f0f0ff;">
-
+---
+title: Spreadsheet TSV test
+author: Craig Stuart Sapp
+keywords: testpage
+permalink: /z.html
+vim: ts=3
+summary: 
+---
 
 <script>
 
@@ -24,6 +26,3 @@ document.addEventListener("DOMContentLoaded", function() {
 
 <pre id="data">DATA WILL BE PLACED HERE</pre>
 
-
-</body>
-</html>

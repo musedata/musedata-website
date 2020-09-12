@@ -1,5 +1,5 @@
 ---
-title: SUPRA Homepage
+title: MuseData Homepage
 author: Craig Stuart Sapp
 keywords: homepage
 permalink: /index.html
