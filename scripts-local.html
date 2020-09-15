@@ -2,7 +2,7 @@
 {% include_relative listeners.html %}
 
 <script>
-// vim: ts=3
+// vim: ts=3 ft=javascript nowrap
 
 
 
@@ -191,6 +191,9 @@ function displayInfo(menudata) {
 //
 
 function displayPdfButton(menudata) {
+	if (!menudata) {
+		menudata = MENUDATA
+	}
 	if (!menudata) {
 		console.log("Error: entry is not defined");
 		return;
@@ -509,7 +512,7 @@ function selectTypesettingGroup() {
 		MENUDATA = MENUDATA_BOTH;
 	}
 
-	doAction(MENUDATA);
+	displayMenudata(MENUDATA, LIST, SHORTCUTS);
 }
 
 

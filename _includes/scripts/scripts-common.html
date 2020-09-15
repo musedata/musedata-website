@@ -1,5 +1,5 @@
 <script>
-// vim: ts=3
+// vim: ts=3 nowrap ft=javascript
 
 var SHORTCUTS = {};
 var SHORTCUTS_AUTOMATIC = {};
@@ -71,34 +71,16 @@ function GetCgiParameters() {
 
 //////////////////////////////
 //
-// PrepareMenuIndexBoth --
+// PrepareMenuIndexBoth --  Convert flat listing of the index
+//    into a hierarchical one.
 //
 
-function PrepareMenuIndexBoth(text) {
+function PrepareMenuIndexBoth(index) {
 	var shortcuts = {};
 	var list = [];
-	var lines  = text.match(/[^\r\n]+/g);
-	var headerLine = -1;
-	var headers = [];
 	var i;
 	var output = {};
 	var cells;
-	for (i=0; i<lines.length; i++) {
-		cells = lines[i].split(/\t/);
-		if (!cells[0].match(/^\s*LEVEL_1\s*$/i)) {
-			continue;
-		}
-		headerLine = i;
-		headers = cells;
-		break;
-	}
-	if (headerLine < 0) {
-		return {};
-	}
-	var columns = {};
-	for (i=0; i<cells.length; i++) {
-		columns[cells[i]] = i;
-	}
 	var shortcut;
 	var dataurl;
 	var url;
@@ -109,22 +91,28 @@ function PrepareMenuIndexBoth(text) {
 	var level5;
 	var max;
 	var obj;
-	for (i=headerLine+1; i<lines.length; i++) {
-		cells = lines[i].split(/\t/);
-		if (cells.length < 1) {
+	for (i=0; i<index.length; i++) {
+		cells = index[i];
+
+		// required fields:
+		if ((!cells.LEVEL_1) || cells.LEVEL_1.match(/^\s*$/)) {
 			continue;
 		}
-		if (cells[0].match(/^\s*$/)) {
+		if ((!cells.SHORTCUT) || cells.SHORTCUT.match(/^\s*$/)) {
 			continue;
 		}
-		level1   = cells[columns["LEVEL_1"]]  || "";
-		level2   = cells[columns["LEVEL_2"]]  || "";
-		level3   = cells[columns["LEVEL_3"]]  || "";
-		level4   = cells[columns["LEVEL_4"]]  || "";
-		level5   = cells[columns["LEVEL_5"]]  || "";
-		shortcut = cells[columns["SHORTCUT"]] || "";
-		dataurl  = cells[columns["DATA_URL"]] || "";
-		url      = cells[columns["URL"]] || "";
+		if ((!cells.DATA_URL) || cells.DATA_URL.match(/^\s*$/)) {
+			continue;
+		}
+
+		level1   = cells.LEVEL_1  || "";
+		level2   = cells.LEVEL_2  || "";
+		level3   = cells.LEVEL_3  || "";
+		level4   = cells.LEVEL_4  || "";
+		level5   = cells.LEVEL_5  || "";
+		shortcut = cells.SHORTCUT || "";
+		dataurl  = cells.DATA_URL || "";
+		url      = cells.URL || "";
 		level1   = level1.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
 		level2   = level2.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
 		level3   = level3.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
@@ -229,34 +217,15 @@ function PrepareMenuIndexBoth(text) {
 
 //////////////////////////////
 //
-// PrepareMenuIndexAutomatic -- Only keep automatic typesetting (not .iff).
+// PrepareMenuIndexAutomatic -- Hierarchical List with Stage2 data only
+//     (not .iff or page files).
 //
 
-function PrepareMenuIndexAutomatic(text) {
+function PrepareMenuIndexAutomatic(index) {
 	var shortcuts = {};
 	var list = [];
-	var lines  = text.match(/[^\r\n]+/g);
-	var headerLine = -1;
-	var headers = [];
-	var i;
 	var output = {};
 	var cells;
-	for (i=0; i<lines.length; i++) {
-		cells = lines[i].split(/\t/);
-		if (!cells[0].match(/^\s*LEVEL_1\s*$/i)) {
-			continue;
-		}
-		headerLine = i;
-		headers = cells;
-		break;
-	}
-	if (headerLine < 0) {
-		return {};
-	}
-	var columns = {};
-	for (i=0; i<cells.length; i++) {
-		columns[cells[i]] = i;
-	}
 	var shortcut;
 	var dataurl;
 	var url;
@@ -267,25 +236,37 @@ function PrepareMenuIndexAutomatic(text) {
 	var level5;
 	var max;
 	var obj;
-	for (i=headerLine+1; i<lines.length; i++) {
-		if (lines[i].match(/\.iff/)) {
+	var i;
+	for (i=0; i<index.length; i++) {
+		cells = index[i];
+
+		// required fields:
+		if ((!cells.LEVEL_1) || cells.LEVEL_1.match(/^\s*$/)) {
 			continue;
 		}
-		cells = lines[i].split(/\t/);
-		if (cells.length < 1) {
+		if ((!cells.SHORTCUT) || cells.SHORTCUT.match(/^\s*$/)) {
 			continue;
 		}
-		if (cells[0].match(/^\s*$/)) {
+		if ((!cells.DATA_URL) || cells.DATA_URL.match(/^\s*$/)) {
 			continue;
 		}
-		level1   = cells[columns["LEVEL_1"]]  || "";
-		level2   = cells[columns["LEVEL_2"]]  || "";
-		level3   = cells[columns["LEVEL_3"]]  || "";
-		level4   = cells[columns["LEVEL_4"]]  || "";
-		level5   = cells[columns["LEVEL_5"]]  || "";
-		shortcut = cells[columns["SHORTCUT"]] || "";
-		dataurl  = cells[columns["DATA_URL"]] || "";
-		url      = cells[columns["URL"]] || "";
+
+		// Remove all downloads that contain .iff
+		// This will have to be fixed since it is now possible to 
+		// to read in multi-file urls that do not have an extension.
+
+		if (cells.DATA_URL.match(/\.iff/)) {
+			continue;
+		}
+
+		level1   = cells.LEVEL_1  || "";
+		level2   = cells.LEVEL_2  || "";
+		level3   = cells.LEVEL_3  || "";
+		level4   = cells.LEVEL_4  || "";
+		level5   = cells.LEVEL_5  || "";
+		shortcut = cells.SHORTCUT || "";
+		dataurl  = cells.DATA_URL || "";
+		url      = cells.URL || "";
 		level1   = level1.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
 		level2   = level2.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
 		level3   = level3.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
@@ -390,34 +371,16 @@ function PrepareMenuIndexAutomatic(text) {
 
 //////////////////////////////
 //
-// PrepareMenuIndexManual -- Only keep manual typesetting (.iff).
+// PrepareMenuIndexManual -- Only keep manual typesetting (.iff).  This
+//   will need to be fixed since the data URL can no longer be used
+//   to identify the data type.
 //
 
-function PrepareMenuIndexManual(text) {
+function PrepareMenuIndexManual(index) {
 	var shortcuts = {};
 	var list = [];
-	var lines  = text.match(/[^\r\n]+/g);
-	var headerLine = -1;
-	var headers = [];
-	var i;
 	var output = {};
 	var cells;
-	for (i=0; i<lines.length; i++) {
-		cells = lines[i].split(/\t/);
-		if (!cells[0].match(/^\s*LEVEL_1\s*$/i)) {
-			continue;
-		}
-		headerLine = i;
-		headers = cells;
-		break;
-	}
-	if (headerLine < 0) {
-		return {};
-	}
-	var columns = {};
-	for (i=0; i<cells.length; i++) {
-		columns[cells[i]] = i;
-	}
 	var shortcut;
 	var dataurl;
 	var url;
@@ -428,25 +391,37 @@ function PrepareMenuIndexManual(text) {
 	var level5;
 	var max;
 	var obj;
-	for (i=headerLine+1; i<lines.length; i++) {
-		if (!lines[i].match(/\.iff/)) {
+	var i;
+	for (i=0; i<index.length; i++) {
+		cells = index[i];
+
+		// required fields:
+		if ((!cells.LEVEL_1) || cells.LEVEL_1.match(/^\s*$/)) {
 			continue;
 		}
-		cells = lines[i].split(/\t/);
-		if (cells.length < 1) {
+		if ((!cells.SHORTCUT) || cells.SHORTCUT.match(/^\s*$/)) {
 			continue;
 		}
-		if (cells[0].match(/^\s*$/)) {
+		if ((!cells.DATA_URL) || cells.DATA_URL.match(/^\s*$/)) {
 			continue;
 		}
-		level1   = cells[columns["LEVEL_1"]]  || "";
-		level2   = cells[columns["LEVEL_2"]]  || "";
-		level3   = cells[columns["LEVEL_3"]]  || "";
-		level4   = cells[columns["LEVEL_4"]]  || "";
-		level5   = cells[columns["LEVEL_5"]]  || "";
-		shortcut = cells[columns["SHORTCUT"]] || "";
-		dataurl  = cells[columns["DATA_URL"]] || "";
-		url      = cells[columns["URL"]] || "";
+
+		// Keep all downloads that contain .iff
+		// This will have to be fixed since it is now possible to 
+		// to read in multi-file urls that do not have an extension.
+
+		if (!cells.DATA_URL.match(/\.iff/)) {
+			continue;
+		}
+
+		level1   = cells.LEVEL_1  || "";
+		level2   = cells.LEVEL_2  || "";
+		level3   = cells.LEVEL_3  || "";
+		level4   = cells.LEVEL_4  || "";
+		level5   = cells.LEVEL_5  || "";
+		shortcut = cells.SHORTCUT || "";
+		dataurl  = cells.DATA_URL || "";
+		url      = cells.URL || "";
 		level1   = level1.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
 		level2   = level2.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
 		level3   = level3.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
@@ -542,6 +517,7 @@ function PrepareMenuIndexManual(text) {
 		}
 		list.push(obj);
 	}
+
 	LIST_MANUAL = list;
 	SHORTCUTS_MANUAL = shortcuts;
 	return output;
