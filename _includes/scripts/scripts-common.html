@@ -104,6 +104,9 @@ function PrepareMenuIndexBoth(index) {
 		if ((!cells.DATA_URL) || cells.DATA_URL.match(/^\s*$/)) {
 			continue;
 		}
+		if (cells.SUPPRESS && cells.SUPPRESS.match(/Y/i)) {
+			continue;
+		}
 
 		level1   = cells.LEVEL_1  || "";
 		level2   = cells.LEVEL_2  || "";
@@ -181,6 +184,7 @@ function PrepareMenuIndexBoth(index) {
 		} else {
 			continue;
 		}
+		obj.parameters = cells;
 		obj.shortcut = shortcut.replace(/\s+/g, "");
 		obj.dataurl = dataurl;
 		obj.url = url;
@@ -248,6 +252,9 @@ function PrepareMenuIndexAutomatic(index) {
 			continue;
 		}
 		if ((!cells.DATA_URL) || cells.DATA_URL.match(/^\s*$/)) {
+			continue;
+		}
+		if (cells.SUPPRESS && cells.SUPPRESS.match(/Y/i)) {
 			continue;
 		}
 
@@ -335,6 +342,7 @@ function PrepareMenuIndexAutomatic(index) {
 		} else {
 			continue;
 		}
+		obj.parameters = cells;
 		obj.shortcut = shortcut.replace(/\s+/g, "");
 		obj.dataurl = dataurl;
 		obj.url = url;
@@ -403,6 +411,9 @@ function PrepareMenuIndexManual(index) {
 			continue;
 		}
 		if ((!cells.DATA_URL) || cells.DATA_URL.match(/^\s*$/)) {
+			continue;
+		}
+		if (cells.SUPPRESS && cells.SUPPRESS.match(/Y/i)) {
 			continue;
 		}
 
@@ -490,6 +501,7 @@ function PrepareMenuIndexManual(index) {
 		} else {
 			continue;
 		}
+		obj.parameters = cells;
 		obj.shortcut = shortcut.replace(/\s+/g, "");
 		obj.dataurl = dataurl;
 		obj.url = url;

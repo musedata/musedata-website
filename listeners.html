@@ -48,7 +48,6 @@ document.addEventListener("DOMContentLoaded", function () {
 	request.addEventListener("load", function () {
 		try {
 			INDEX = JSON.parse(this.responseText);
-			console.log("DOWNLOADED", INDEX);
 		} catch (error) {
 			console.log("ERROR: ", error.message);
 			// Do a backup access.
