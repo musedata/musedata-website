@@ -6,6 +6,8 @@ permalink: /list/index.html
 summary: 
 ---
 
+{% include_relative scripts-local.html %}
+{% include_relative styles-local.html %}
 
 # Musedata file list #
 
@@ -72,6 +74,7 @@ Example options:
 
 <div style="height:200px"></div>
 
-{% include_relative scripts-local.html %}
-{% include_relative styles-local.html %}
+<hr noshade style="margin-top:50px; margin-bottom:50px;">
+<h2 style="padding-bottom:50px;"> Flat listing of scores </h2>
+<div style="font-size:14pt; line-height:17pt;" id="flat-list"></div>
 

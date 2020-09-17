@@ -9,11 +9,7 @@ summary:
 
 # About Musedata #
 
-A description of Musedata will go here.
-
-
-
-
+This website is a frontend for <a target="_blank" href="http://muse2ps.ccarh.org">muse2ps</a>.
 
 
 <div style="height:500px"></div>

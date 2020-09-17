@@ -1,0 +1,229 @@
+
+<script>
+// vim: ts=3 ft=javascript nowrap
+
+//////////////////////////////
+//
+// displayFlatList --
+//
+
+function displayFlatList(list) {
+	var element = document.querySelector("#flat-list");
+	if (!element) {
+		console.log("Error: #flat-list not found");
+		return;
+	}
+	element.innerHTML = "";
+	var output = "";
+	output += "<table class='list'>";
+
+	var i;
+	// var different;
+
+	for (i=0; i<list.length; i++) {
+		//if (isPart(list[i])) {
+		//	continue;
+		//}
+		[content, i] = printEntry(list, i);
+		output += content;
+	}
+
+	output += "</table>";
+	element.innerHTML = output;
+}
+
+
+
+//////////////////////////////
+//
+// printEntry -- Print one line of the flat listing table.
+//
+
+function printEntry(list, index) {
+	var obj = list[index];
+	var oobj;
+	if (index > 0) {
+		oobj = list[index-1];
+	} else {
+		oobj = null;
+	}
+	var output = "";
+	var text;
+	var newindex = index;
+	var content;
+	var partQ;
+	var path = obj["@path"];
+
+	output += "<tr>";
+	var colspan = 0;
+	for (i=0; i<path.length; i++) {
+
+		output += "<td class='hanging-indent' ";
+
+		partQ = isPart(obj);
+		if (partQ) {
+			output += " class='parts' ";
+		}
+
+		colspan = 0;
+		if (partQ && (i == path.length - 2)) {
+			colspan = 5 - i + 1;
+			if (colspan < 1) {
+				colspan = 0;
+			}
+		} else if (i == path.length - 1) {
+			colspan = 5 - path.length + 1;
+			if (colspan < 1) {
+				colspan = 0;
+			}
+		}
+
+		if (colspan) {
+			output += 'colspan="' + colspan + '" ';
+		}
+
+		output += ">";
+		if (oobj && oobj["@path"][i] 
+				&& (path[i]["@title"] === oobj["@path"][i]["@title"])
+				&& (!path[i]["@title"].match(/part/i))
+				) {
+			text = cleanText(path[i]["@title"])
+			output += "<div class='hidden-cell'>";
+			output += formatText(text);
+			output += "</div>";
+			continue;
+		}
+		if (i < path.length) {
+			text = cleanText(path[i]["@title"])
+			if (text.match(/^parts?/i)) {
+				output += "<i>" + text + ":</i>";
+				[content, newindex] = printParts(list, index)
+				output += " " + content;
+				break;
+			} else if (i == path.length - 1) {
+				output += "<a target='pdf' href='";
+				output += "https://pdf.musedata.org/?id=" + list[index].shortcut;
+				output += "'>";
+				output += formatText(text);
+				output += "</a>";
+			} else {
+				output += text;
+			}
+		}
+		output += "</td>";
+	}
+	output += "</tr>";
+	return [output, newindex];
+}
+
+
+
+
+//////////////////////////////
+//
+// cleanText --
+//
+
+function cleanText(text) {
+	return text.replace(/-flat/g, "&flat;").replace(/-sharp/g, "&sharp;").replace(/ZZZ/g, "'");
+}
+
+
+
+//////////////////////////////
+//
+// formatText -- Force non-breaking spaces after certain abbreviations.
+//
+
+function formatText(text) {
+	return text
+			.replace(/RV\s+/g, "RV&nbsp;")
+			.replace(/op\.\s+/g, "op.&nbsp;")
+			.replace(/no\.\s+/g, "no.&nbsp;");
+}
+
+
+
+//////////////////////////////
+//
+// printParts --
+//
+
+function printParts(list, index) {
+	var obj = list[index];
+	var path = list[index]["@path"];
+	var output = "";
+	output += "<a target='pdf' href='";
+	output += "https://pdf.musedata.org/?id=" + list[index].shortcut;
+	output += "'>";
+	output += path[path.length-1]["@title"];
+	output += "</a>";
+
+	var i = index+1;
+
+	while (areSameXPart(list[i], list[i-1])) {
+		path = list[i]["@path"];
+		output += ", ";
+		output += "<a target='pdf' href='";
+		output += "https://pdf.musedata.org/?id=" + list[i].shortcut;
+		output += "'>";
+		output += path[path.length-1]["@title"];
+		output += "</a>";
+		i++;
+		if (list[i] == null) {
+			break;
+		}
+	}
+
+	return [output, i-1];
+}
+
+
+
+//////////////////////////////
+//
+// areSameXPart --
+//
+
+function areSameXPart(obj1, obj2) {
+	if (obj1["@path"].length != obj2["@path"].length) {
+		return 0;
+	}
+	for (var i=0; i<obj1["@path"].length; i++) {
+		if (obj1["@path"][i]["@title"] !== obj2["@path"][i]["@title"]) {
+			return 0;
+		}
+		if (obj1["@path"][i]["@title"].match(/^parts?/i)) {
+			break;
+		}
+	}
+	return 1;
+}
+
+
+
+//////////////////////////////
+//
+// isPart --
+//
+
+function isPart(obj) {
+	var path = obj["@path"];
+	if (!path) {
+		console.log("Error: no path in object to check");
+		return 0;
+	}
+	if (path.length < 2) {
+		console.log("Warning: path too short");
+		return 0;
+	}	
+	if (path[path.length-2]["@title"].match(/^parts?/i)) {
+		return 1;
+	}
+	return 0;
+}
+
+
+
+
+</script>

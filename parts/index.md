@@ -1,24 +1,20 @@
 ---
-title: SUPRA Homepage
+title: Musedata instrumental parts page
 author: Craig Stuart Sapp
-keywords: homepage
+keywords: insturmental parts
 permalink: /parts/index.html
 vim: ts=3
 summary: 
 ---
 
-<style>
-
-.menu tr:hover {
-	background: #fbfbf9;
-}
-
-</style>
+{% include_relative styles-local.html %}
+{% include_relative scripts-local.html %}
 
 
 # Instrumental parts #
 
-Choose an instrument from the menu below to display available parts in the musedata database:
+Choose an instrument from the following menu to display available
+parts in the musedata database:
 
 <select id="instrument" onchange="doSearch();">
 	<option value="flute">flute</option>
@@ -37,8 +33,6 @@ Choose an instrument from the menu below to display available parts in the mused
 
 <div style="margin-top:50px;" id="list"></div>
 
-{% include_relative styles-local.html %}
-{% include_relative scripts-local.html %}
 
 
 

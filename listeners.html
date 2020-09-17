@@ -4,15 +4,6 @@
 <script>
 // vim: ts=3 nowrap ft=javascript
 
-var INDEX = [];              // JSON data from Google spreadsheet
-var CGI = {};                // CGI parameters from URL
-var MENUDATA = [];           // Current hierarchical menu
-var MENUDATA_BOTH = [];      // Hierarchical menu with automatic and manual typesettings
-var MENUDATA_AUTOMATIC = []; // Music Page Files only
-var MENUDATA_MANUAL = [];    // Stage2 data only
-var ID = "";
-var DATATYPE = "both";
-
 
 //////////////////////////////
 //
@@ -20,65 +11,9 @@ var DATATYPE = "both";
 //
 
 document.addEventListener("DOMContentLoaded", function () {
-	CGI = GetCgiParameters();
-	if (CGI.id) {
-		ID = CGI.id;
-	}
-
-	// Create URL for work index to download:
-	// No longer works, redirect to different website for TSV extraction probably causing CORS problem.
-	// var sid = "1U4Z-NeU2FGk_qNq6BwXeSVN-p8AnZsWbRHGo5fk3f3A"
-	// var gid = "0";
-	// var url = "https://docs.google.com/spreadsheets/d/";
-	// url += sid + "/export?gid=" + gid + "&format=tsv";
-
-	// Spreadsheet URL:
-   // https://docs.google.com/spreadsheets/d/e/2PACX-1vTTZN-R0h99A6x2Xc74PA1NuAFLQbUx8Kw_DsKvZPkJ2Hh_-knqQoeS6Yd07Yb2VoWR7LITIRnTAkSt/pubhtml
-
-	// Alternate url (also has CORS problem):
-	//var url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTTZN-R0h99A6x2Xc74PA1NuAFLQbUx8Kw_DsKvZPkJ2Hh_-knqQoeS6Yd07Yb2VoWR7LITIRnTAkSt/pub?gid=0&single=true&output=tsv";
-
-	// backup url:
-	// url2 = "/list/musedata-index.json";
-
-	// Get JSON verseion from above spreadsheet:
-	var sid = "AKfycbyIBWnniSSUHEDr10yRdMVx72sQDXXntyQ6bd0az2JpumBulp4";
-	url = "https://script.google.com/macros/s/" + sid + "/exec";
-	var request = new XMLHttpRequest();
-	request.addEventListener("load", function () {
-		try {
-			INDEX = JSON.parse(this.responseText);
-		} catch (error) {
-			console.log("ERROR: ", error.message);
-			// Do a backup access.
-		}
-		doAction(INDEX);
-	});
-	request.open("GET", url);
-	// Cannot do the following since it has to be done on the server, and this 
-	// parameter seems to otherwise trigger CORS:
-	// request.setRequestHeader('Access-Control-Allow-Origin', '*');
-	request.send();
+	PrepareCgiParameters();
+	PrepareIndex(displayMenudata);
 });
-
-
-
-//////////////////////////////
-//
-// doAction --
-//
-
-function doAction(index) {
-	MENUDATA_BOTH = PrepareMenuIndexBoth(index);
-	MENUDATA_AUTOMATIC = PrepareMenuIndexAutomatic(index);
-	MENUDATA_MANUAL = PrepareMenuIndexManual(index);
-	MENUDATA = MENUDATA_BOTH;
-
-	LIST = LIST_BOTH;
-	SHORTCUTS = SHORTCUTS_BOTH;
-
-	displayMenudata(MENUDATA, LIST, SHORTCUTS);
-}
 
 
 
@@ -108,7 +43,6 @@ function displayMenudata(menudata, list, shortcuts) {
 	} else {
 		displayLevel(menudata);
 	}
-	displayFlatList(list);
 }
 
 
