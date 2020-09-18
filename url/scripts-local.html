@@ -34,6 +34,13 @@ function generatePdfFromUrl(url) {
 	}
 	url = url.replace(/['";\s]+/g, "");
 	url = "http://pdf.musedata.org?url=" + encodeURI(url);
+
+	var zelement = document.querySelector("option-z");
+	if (zelement) {
+		var zoption = parseInt(zelement.value);
+		url += "&z=" + zoption;
+	}
+
 	window.open(url, "_blank");
 }
 
