@@ -92,6 +92,9 @@ a.searchworks:hover, a.purl:hover {
 	text-decoration: underline;
 }
 
+body.wait * {
+	cursor: wait !important;
+}
 
 *:focus {
     outline: none;

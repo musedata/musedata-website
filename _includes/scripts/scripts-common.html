@@ -563,6 +563,11 @@ function PrepareMenuIndexManual(index) {
 //
 
 function PrepareIndex(callback) {
+	// Show busy cursor while downloading index:
+	setTimeout(function () {
+		document.body.classList.add("wait");
+	}, 0);
+
 	// Create URL for work index to download:
 	// No longer works, redirect to different website for TSV extraction probably causing CORS problem.
 	// var sid = "1U4Z-NeU2FGk_qNq6BwXeSVN-p8AnZsWbRHGo5fk3f3A"
@@ -579,6 +584,23 @@ function PrepareIndex(callback) {
 	// backup url:
 	// url2 = "/list/musedata-index.json";
 
+	// check if the index is stored in sessionStorage:
+	if (sessionStorage.INDEX) {
+		try {
+			INDEX = JSON.parse(sessionStorage.INDEX);
+			PrepareOtherIndexes(INDEX);
+			if (callback) {
+				callback();
+			}
+			setTimeout(function () {
+				document.body.classList.remove("wait");
+			}, 50);
+			return;
+		} catch (err) {
+			delete sessionStorage.INDEX;
+		}
+	}
+
 	// Get JSON version from above spreadsheet:
 	var sid = "AKfycbyIBWnniSSUHEDr10yRdMVx72sQDXXntyQ6bd0az2JpumBulp4";
 	url = "https://script.google.com/macros/s/" + sid + "/exec";
@@ -586,27 +608,45 @@ function PrepareIndex(callback) {
 	request.addEventListener("load", function () {
 		try {
 			INDEX = JSON.parse(this.responseText);
+			sessionStorage.INDEX = this.responseText;
 		} catch (error) {
 			console.log("ERROR: ", error.message);
-			// Do a backup access.
+			// Do a backup access method of some sort.
 		}
-		MENUDATA_BOTH = PrepareMenuIndexBoth(INDEX);
-		MENUDATA_AUTOMATIC = PrepareMenuIndexAutomatic(INDEX);
-		MENUDATA_MANUAL = PrepareMenuIndexManual(INDEX);
-		MENUDATA = MENUDATA_BOTH;
-		LIST = LIST_BOTH;
-		SHORTCUTS = SHORTCUTS_BOTH;
+		PrepareOtherIndexes(INDEX);
 		if (callback) {
 			callback();
 		}
+		setTimeout(function () {
+			document.body.classList.remove("wait");
+		}, 50);
 	});
 	request.open("GET", url);
 	// Cannot do the following since it has to be done on the server, and this 
 	// parameter seems to otherwise trigger CORS:
 	// request.setRequestHeader('Access-Control-Allow-Origin', '*');
 	request.send();
-
 }
+
+
+
+//////////////////////////////
+//
+// PrepareOtherIndexes -- Starting with the flat index of Musedata files, generate
+//     the hierarchical one.
+//
+
+function PrepareOtherIndexes(index) {
+	MENUDATA_BOTH      = PrepareMenuIndexBoth(INDEX);
+	MENUDATA_AUTOMATIC = PrepareMenuIndexAutomatic(INDEX);
+	MENUDATA_MANUAL    = PrepareMenuIndexManual(INDEX);
+
+	// load the default views:
+	MENUDATA  = MENUDATA_BOTH;
+	LIST      = LIST_BOTH;
+	SHORTCUTS = SHORTCUTS_BOTH;
+}
+
 
 
 

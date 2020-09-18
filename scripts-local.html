@@ -1,9 +1,13 @@
 
+
+
+{% include scripts/scripts-common.html %}
 {% include_relative listeners.html %}
+
+
 
 <script>
 // vim: ts=3 ft=javascript nowrap
-
 
 
 //////////////////////////////
@@ -164,7 +168,6 @@ function displayInfo(menudata) {
 		output += "</li>";
 	}
 
-
 //	if (dataurl && !dataurl.match(/^\s*$/)) {
 //		var newurl = dataurl.replace(/raw\/.*/, "") + "issues";
 //		output += "<li>";
@@ -217,7 +220,7 @@ function displayPdfButton(menudata) {
 
 //////////////////////////////
 //
-// generatePdf --
+// generatePdf -- Extra parameters will move to pdf.musedata.org eventually.
 //
 
 function generatePdf(id) {
@@ -251,7 +254,7 @@ function generatePdf(id) {
 
 //////////////////////////////
 //
-// expandParameter --
+// expandParameter --  This will be moved to pdf.musedata.org eventually.
 //
 
 function expandParameter(text, p) {
@@ -279,7 +282,10 @@ function expandParameter(text, p) {
 
 //////////////////////////////
 //
-// getParameters --
+// getParameters --  This will move to pdf.musedata.org eventually, although this
+//   might be useful for other situations on this website.  This function returns
+//   the entry in INDEX that contains the SHORTCUT.  Eventually add ALIASES
+//   searches as well.
 //
 
 function getParameters(id, index) {
