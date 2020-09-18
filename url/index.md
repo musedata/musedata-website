@@ -15,7 +15,7 @@ and then press the red button to typeset the data into a PDF file.
 <div id="actionbuttons">
 	<div class='pdfbutton' 
 		onclick='generatePdf("#url")'>
-		Generate Music PDF
+		Generate PDF
 	</div>
 </div>
 
