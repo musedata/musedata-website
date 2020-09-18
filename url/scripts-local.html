@@ -1,8 +1,7 @@
-
+{% include scripts/scripts-common.html %}
 {% include_relative listeners.html %}
 
 <script>
-
 
 //////////////////////////////
 //
@@ -10,6 +9,7 @@
 //
 
 function generatePdf(selector) {
+console.log("GENERATE PDF SELECTOR", selector);
 	var element = document.querySelector(selector);
 	if (!element) {
 		return;
@@ -25,20 +25,45 @@ function generatePdf(selector) {
 // generatePdfFromUrl --
 //
 
-function generatePdfFromUrl(url) {
-	if (!url) {
+function generatePdfFromUrl(dataurl) {
+console.log("URL INPUT = ", dataurl);
+	if (!dataurl) {
 		return;
 	}
-	if (url.match(/^\s*$/)) {
+	if (dataurl.match(/^\s*$/)) {
 		return;
 	}
-	url = url.replace(/['";\s]+/g, "");
-	url = "http://pdf.musedata.org?url=" + encodeURI(url);
+	dataurl = dataurl.replace(/['";\s]+/g, "");
+	var url = "http://pdf.musedata.org?url=" + encodeURIComponent(dataurl);
 
-	var zelement = document.querySelector("option-z");
+	var zelement = document.querySelector("#option-z");
 	if (zelement) {
 		var zoption = parseInt(zelement.value);
 		url += "&z=" + zoption;
+	}
+	var L1element = document.querySelector("#L1");
+	var L2element = document.querySelector("#L2");
+	var L3element = document.querySelector("#L3");
+	var R1element = document.querySelector("#R1");
+	var R2element = document.querySelector("#R2");
+	var R3element = document.querySelector("#R3");
+	if (L1element && L1element.value) {
+		url += "&L1=" + encodeURIComponent(L1element.value);
+	}
+	if (L2element && L2element.value) {
+		url += "&L2=" + encodeURIComponent(L2element.value);
+	}
+	if (L3element && L3element.value) {
+		url += "&L3=" + encodeURIComponent(L3element.value);
+	}
+	if (R1element && R1element.value) {
+		url += "&R1=" + encodeURIComponent(R1element.value);
+	}
+	if (R2element && R2element.value) {
+		url += "&R2=" + encodeURIComponent(R2element.value);
+	}
+	if (R3element && R3element.value) {
+		url += "&R3=" + encodeURIComponent(R3element.value);
 	}
 
 	window.open(url, "_blank");
@@ -46,6 +71,3 @@ function generatePdfFromUrl(url) {
 
 
 </script>
-
-
-
