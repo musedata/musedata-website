@@ -12,39 +12,10 @@
 
 document.addEventListener("DOMContentLoaded", function () {
 	PrepareCgiParameters();
-	PrepareIndex(displayMenudata);
+	PrepareIndex(DisplayMenudata);
 });
 
 
-
-//////////////////////////////
-//
-// displayMenudata -- Display the hierarchical work list on the page,
-//    as a series of drop-down menus.
-//
-
-function displayMenudata(menudata, list, shortcuts) {
-	if (!menudata) {
-		menudata = MENUDATA;
-	}
-	if (!list) {
-		list = LIST;
-	}
-	if (!shortcuts) {
-		shortcuts = SHORTCUTS;
-	}
-
-	if (!ID.match(/^\s*$/)) {
-		var entry = shortcuts[ID];
-		if (entry) {
-			displayShortcut(entry);
-		} else {
-			displayLevel(menudata);
-		}
-	} else {
-		displayLevel(menudata);
-	}
-}
 
 
 </script>

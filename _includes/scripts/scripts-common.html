@@ -557,6 +557,19 @@ function PrepareMenuIndexManual(index) {
 }
 
 
+
+//////////////////////////////
+//
+// ReloadIndex --
+//
+
+function ReloadIndex(callback) {
+	delete sessionStorage.INDEX;
+	PrepareIndex(callback);
+}
+
+
+
 //////////////////////////////
 //
 // PrepareIndex --
@@ -647,6 +660,37 @@ function PrepareOtherIndexes(index) {
 	SHORTCUTS = SHORTCUTS_BOTH;
 }
 
+
+
+//////////////////////////////
+//
+// DisplayMenudata -- Display the hierarchical work list on the page,
+//    as a series of drop-down menus.  For the homepage, but set for
+//    all pages so data clearing can work from any page.
+//
+
+function DisplayMenudata(menudata, list, shortcuts) {
+	if (!menudata) {
+		menudata = MENUDATA;
+	}
+	if (!list) {
+		list = LIST;
+	}
+	if (!shortcuts) {
+		shortcuts = SHORTCUTS;
+	}
+
+	if (!ID.match(/^\s*$/)) {
+		var entry = shortcuts[ID];
+		if (entry) {
+			displayShortcut(entry);
+		} else {
+			displayLevel(menudata);
+		}
+	} else {
+		displayLevel(menudata);
+	}
+}
 
 
 
