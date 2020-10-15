@@ -248,7 +248,7 @@ function generatePdf(event, id) {
 	}
 	var url = "https://pdf.musedata.org?id=" + id + cgi;
 	if (event && event.shiftKey) {
-		url += "&raw=true";
+		url += "&raw=true&debug=true";
 	}
 	window.open(url, "_blank");
 }
