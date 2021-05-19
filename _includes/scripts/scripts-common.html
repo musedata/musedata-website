@@ -621,7 +621,8 @@ function PrepareIndex(callback) {
 	request.addEventListener("load", function () {
 		try {
 			INDEX = JSON.parse(this.responseText);
-			sessionStorage.INDEX = this.responseText;
+			// prevent buffering of index for now:
+			// sessionStorage.INDEX = this.responseText;
 		} catch (error) {
 			console.log("ERROR: ", error.message);
 			// Do a backup access method of some sort.
