@@ -227,24 +227,24 @@ function generatePdf(event, id) {
 	var p = getParameters(id);
 	var cgi = "";
 	if (p) {
-		if (p.FOOTER_LEFT_BOTTOM) {
-			cgi += "&L1=" + expandParameter(p.FOOTER_LEFT_BOTTOM, p);
-		}
-		if (p.FOOTER_LEFT_MIDDLE) {
-			cgi += "&L2=" + expandParameter(p.FOOTER_LEFT_MIDDLE, p);
-		}
-		if (p.FOOTER_LEFT_TOP) {
-			cgi += "&L3=" + expandParameter(p.FOOTER_LEFT_TOP, p);
-		}
-		if (p.FOOTER_RIGHT_BOTTOM) {
-			cgi += "&R1=" + expandParameter(p.FOOTER_RIGHT_BOTTOM, p);
-		}
-		if (p.FOOTER_RIGHT_MIDDLE) {
-			cgi += "&R2=" + expandParameter(p.FOOTER_RIGHT_MIDDLE, p);
-		}
-		if (p.FOOTER_RIGHT_TOP) {
-			cgi += "&R3=" + expandParameter(p.FOOTER_RIGHT_TOP, p);
-		}
+//		if (p.FOOTER_LEFT_BOTTOM) {
+//			cgi += "&L1=" + expandParameter(p.FOOTER_LEFT_BOTTOM, p);
+//		}
+//		if (p.FOOTER_LEFT_MIDDLE) {
+//			cgi += "&L2=" + expandParameter(p.FOOTER_LEFT_MIDDLE, p);
+//		}
+//		if (p.FOOTER_LEFT_TOP) {
+//			cgi += "&L3=" + expandParameter(p.FOOTER_LEFT_TOP, p);
+//		}
+//		if (p.FOOTER_RIGHT_BOTTOM) {
+//			cgi += "&R1=" + expandParameter(p.FOOTER_RIGHT_BOTTOM, p);
+//		}
+//		if (p.FOOTER_RIGHT_MIDDLE) {
+//			cgi += "&R2=" + expandParameter(p.FOOTER_RIGHT_MIDDLE, p);
+//		}
+//		if (p.FOOTER_RIGHT_TOP) {
+//			cgi += "&R3=" + expandParameter(p.FOOTER_RIGHT_TOP, p);
+//		}
 	}
 	var url = "https://pdf.musedata.org?id=" + id + cgi;
 	if (event && event.shiftKey) {
