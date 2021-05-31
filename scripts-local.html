@@ -212,7 +212,7 @@ function displayPdfButton(menudata) {
 		return;
 	}
 	var output = "";
-	output += "<div class='pdfbutton' onclick='generatePdf(event, \"" + shortcut + "\")'>Download PDF</div>";
+	output += "<div class='pdfbutton disable-select' onclick='generatePdf(event, \"" + shortcut + "\")'>Download PDF</div>";
 	abutton.innerHTML = output;
 }
 
@@ -248,7 +248,7 @@ function generatePdf(event, id) {
 	}
 	var url = "https://pdf.musedata.org?id=" + id + cgi;
 	if (event && event.shiftKey) {
-		url += "&raw=true&debug=true";
+		url += "&nocache";
 	}
 	window.open(url, "_blank");
 	console.log("Shift-click on the download button to view debug information");
