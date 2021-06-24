@@ -30,6 +30,7 @@ parts in the musedata database:
 	<option value="contrabass">Contrabass</option>
 	<option value="continuo">Continuo</option>
 	<option value="cembalo">Cembalo</option>
+	<option value="piano">Piano</option>
 </select>
 
 <div style="margin-top:50px;" id="list"></div>
