@@ -28,7 +28,7 @@ summary:
 		<option value="manual">manual typesettings only</option>
 		<option value="automatic">automatic typesettings only</option>
 	</select>
-	<div style="font-size:90%;" id="info"></div>
+	<div style="display:none; font-size:90%;" id="info"></div>
 </td>
 </tr>
 </table>
