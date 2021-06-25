@@ -11,7 +11,7 @@ summary:
 {% include_relative scripts-local.html %}
 
 
-# Instrumental parts #
+# Instrumental parts and solo works #
 
 Choose an instrument from the following menu to display available
 parts in the musedata database:
@@ -31,6 +31,8 @@ parts in the musedata database:
 	<option value="continuo">Continuo</option>
 	<option value="cembalo">Cembalo</option>
 	<option value="piano">Piano</option>
+	<option value="keyboard">Keyboard</option>
+	<option value="organ">Organ</option>
 </select>
 
 <div style="margin-top:50px;" id="list"></div>

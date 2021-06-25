@@ -129,19 +129,20 @@ function PrepareMenuIndexBoth(index) {
 			continue;
 		}
 
-		level1   = cells.LEVEL_1  || "";
-		level2   = cells.LEVEL_2  || "";
-		level3   = cells.LEVEL_3  || "";
-		level4   = cells.LEVEL_4  || "";
-		level5   = cells.LEVEL_5  || "";
-		shortcut = cells.SHORTCUT || "";
-		dataurl  = cells.DATA_URL || "";
-		url      = cells.URL || "";
-		level1   = level1.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
-		level2   = level2.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
-		level3   = level3.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
-		level4   = level4.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
-		level5   = level5.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
+		level1      = cells.LEVEL_1    || "";
+		level2      = cells.LEVEL_2    || "";
+		level3      = cells.LEVEL_3    || "";
+		level4      = cells.LEVEL_4    || "";
+		level5      = cells.LEVEL_5    || "";
+		shortcut    = cells.SHORTCUT   || "";
+		dataurl     = cells.DATA_URL   || "";
+		instrument  = cells.INSTRUMENT || "";
+		url         = cells.URL || "";
+		level1      = level1.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
+		level2      = level2.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
+		level3      = level3.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
+		level4      = level4.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
+		level5      = level5.replace(/^\s+/, "").replace(/^\s+$/, "").replace(/'/g, "ZZZ");
 		if (shortcut.match(/^\s*$/)) { continue; }
 		if (dataurl.match(/^\s*$/)) { continue; }
 		if (!level5.match(/^\s*$/)) { max = 5; }
@@ -207,6 +208,7 @@ function PrepareMenuIndexBoth(index) {
 		}
 		obj.parameters = cells;
 		obj.shortcut = shortcut.replace(/\s+/g, "");
+		obj.instrument = instrument;
 		obj.dataurl = dataurl;
 		obj.url = url;
 		obj["@line"] = i;

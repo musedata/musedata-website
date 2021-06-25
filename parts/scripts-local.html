@@ -44,11 +44,14 @@ function doSearch() {
 		if (path.length < 2) {
 			continue;
 		}
-		if (!path[path.length - 2]["@title"].match(/^parts/i)) {
+//		if (!path[path.length - 2]["@title"].match(/^parts/i)) {
+//			continue;
+//		}
+		var instrument = item["instrument"];
+		if (!instrument) {
 			continue;
 		}
-		var title = item["@title"];
-		if (!title.match(re)) {
+		if (!instrument.match(re)) {
 			continue;
 		}
 		matches.push(item);
@@ -65,7 +68,7 @@ function doSearch() {
 		oitem.cols = [];
 		oitem.names = [];
 		oitem.ids = [];
-		oitem.names.push(item["@title"]);
+		oitem.names.push(item["instrument"]);
 		oitem.ids.push(item["shortcut"]);
 		for (j=0; j<path.length; j++) {
 			if (path[j]["@title"].match(/^parts/i)) {
