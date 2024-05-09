@@ -73,9 +73,11 @@ function displayLevel(menudata, selection) {
 			output += " selected";
 		}
 		output += ">";
-		output += list[i]["@title"].replace(/ZZZ/g, "'")
+		let title = list[i]["@title"].replace(/ZZZ/g, "'")
 			.replace(/-flat/g, "&flat;")
 			.replace(/-sharp/g, "&sharp;");
+		title = replaceParameters(title, list[i].parameters);
+		output += title;
 		output += "</option>";
 	}
 	output += "</select>";
@@ -88,6 +90,23 @@ function displayLevel(menudata, selection) {
 	if (list.length >= 1) {
 		displayLevel(list[0]);
 	}
+}
+
+
+
+//////////////////////////////
+//
+// replaceParameters --
+//
+
+function replaceParameters(value, params) {
+	let matches;
+	while (matches = value.match(/%([A-Z0-9_]+)/)) {
+		let key = matches[1];
+		let p = params[key] || "";
+		value = value.replace(new RegExp(`%${key}`, "g"), p);
+	}
+	return value;
 }
 
 
